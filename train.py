@@ -9,18 +9,25 @@ import random
 import numpy as np
 import datetime
 import re
+from numpy.random import seed
+from tensorflow import set_random_seed
+import argparse
+import os
 
-# This script was initially from a cv-tricks.com tutorial
-# It has a MIT licence
+
 # TODO: 
-# - Augmentation (shifting, shearing, and zooming)
-# - Create and read from TFRecords 
 # - Logging for tensorboard
 
 
 
-logs_path = "/tmp/tf/cc-predictor-model"
+#logs_path = "/tmp/tf/cc-predictor-model"
 
+
+parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
+parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
+parser.add_argument('--imagedir', type=str, help='The training and validation data')
+parser.add_argument('--outputdir', type=str, help='where to write model snapshots')	
+args = parser.parse_args()
 
 # For tensorboard, not used yet.
 def variable_summaries(var):
@@ -139,127 +146,129 @@ def train(start, num_iterations):
             epoch = int(i / int(data.train.num_examples/batch_size))
             show_progress(i, epoch, feed_dict_tr, feed_dict_val, val_loss)
 
-            saver.save(session, './cc-predictor-model/current/cc-predictor-model', global_step=epoch)
+            saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
 
 
 if __name__ == "__main__":
 
+
+	retval = os.system("mkdir -p " + args.outputdir)
+	if retval != 0:
+		sys.stderr.write('Could not create outputdir\n')
+		sys.exit(63)
+		
     #Adding Seed so that random initialization is consistent
-    from numpy.random import seed
-    seed(1)
-    from tensorflow import set_random_seed
-    set_random_seed(2)
+	seed(1)
+	set_random_seed(2)
     
     
-    batch_size = 32
+	batch_size = 32
 
-    #Prepare input data
-    #classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    num_classes = len(classes)
+	#Prepare input data
+	#classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+	classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+	num_classes = len(classes)
     
-    # 40% of the data will automatically be used for validation
-    # Crazy
-    #validation_size = 0.35
-    validation_size = 0.25
+    # 25% of the data will automatically be used for validation
+	#validation_size = 0.35
+	validation_size = 0.25
     
-    img_size = 128
-    num_channels = 3
-    train_path='training_data'
+	img_size = 128
+	num_channels = 3
+	train_path='training_data'
     
-    # We shall load all the training and validation images and labels into memory
-    # using openCV and use that during training
-    data = dataset.read_train_sets("alldata.txt", img_size, classes, validation_size=validation_size)
+	# We shall load all the training and validation images and labels into memory
+	# using openCV and use that during training
+	data = dataset.read_train_sets(args.labelsfile, args.imagedir, img_size, classes, validation_size=validation_size)
     
-    print("Complete reading input data. ")
-    print("Number of files in Training-set:\t\t{}".format(len(data.train.labels)))
-    print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
-    print("data.train.num_examples: %d" % data.train.num_examples)
+	print("Complete reading input data. ")
+	print("Number of files in Training-set:\t\t{}".format(len(data.train.labels)))
+	print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
+	print("data.train.num_examples: %d" % data.train.num_examples)
 
-    session = tf.Session()
+	session = tf.Session()
 
-    x = tf.placeholder(tf.float32, shape=[None, img_size,img_size,num_channels], name='x')
+	x = tf.placeholder(tf.float32, shape=[None, img_size,img_size,num_channels], name='x')
     
-    ## labels
-    y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
-    #y_true_cls = tf.argmax(y_true, dimension=1)
-    y_true_cls = tf.argmax(y_true, axis=1)
+	## labels
+	y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
+	#y_true_cls = tf.argmax(y_true, dimension=1)
+	y_true_cls = tf.argmax(y_true, axis=1)
 
-    layer_conv1 = create_convolutional_layer(input=x,
-                                             num_input_channels=3,
-                                             conv_filter_size=128,
+	layer_conv1 = create_convolutional_layer(input=x,
+											 num_input_channels=3,
+											 conv_filter_size=128,
                                              num_filters=3)
-    layer_conv2 = create_convolutional_layer(input=layer_conv1,
+	layer_conv2 = create_convolutional_layer(input=layer_conv1,
                                              num_input_channels=3,
                                              conv_filter_size=64,
                                              num_filters=3)
 
-    layer_conv3= create_convolutional_layer(input=layer_conv2,
+	layer_conv3= create_convolutional_layer(input=layer_conv2,
                                             num_input_channels=3,
                                             conv_filter_size=32,
                                             num_filters=3)
 
-    layer_conv4= create_convolutional_layer(input=layer_conv3,
+	layer_conv4= create_convolutional_layer(input=layer_conv3,
                                             num_input_channels=3,
                                             conv_filter_size=16,
                                             num_filters=3)
 
-    layer_conv5= create_convolutional_layer(input=layer_conv4,
+	layer_conv5= create_convolutional_layer(input=layer_conv4,
                                             num_input_channels=3,
                                             conv_filter_size=8,
                                             num_filters=3)
 
     
 
-    layer_flat = create_flatten_layer(layer_conv5)
+	layer_flat = create_flatten_layer(layer_conv5)
     
-    layer_fc1 = create_fc_layer(input=layer_flat,
+	layer_fc1 = create_fc_layer(input=layer_flat,
             num_inputs=layer_flat.get_shape()[1:4].num_elements(),
             num_outputs=128,
             use_relu=True)
 
     #dropped = tf.nn.dropout(layer_fc1, 0.5)
-    dropped = tf.nn.dropout(layer_fc1, 0.5)
-    layer_fc2 = create_fc_layer(input=dropped,
+	dropped = tf.nn.dropout(layer_fc1, 0.5)
+	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
             num_outputs=num_classes,
             use_relu=False) 
 
     # Softmax is a function that maps [-inf, +inf] to [0, 1] similar as Sigmoid. But Softmax also
     # normalizes the sum of the values(output vector) to be 1.    
-    y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
+	y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
 
-    y_pred_cls = tf.argmax(y_pred, dimension=1)
-    session.run(tf.global_variables_initializer())
+	y_pred_cls = tf.argmax(y_pred, dimension=1)
+	session.run(tf.global_variables_initializer())
     # create log writer object
-    #writer =  tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
-    merged = tf.summary.merge_all()
-    train_writer = tf.summary.FileWriter(logs_path + '/train', graph=tf.get_default_graph())
-    test_writer  = tf.summary.FileWriter(logs_path + '/test',  graph=tf.get_default_graph())
+    #merged = tf.summary.merge_all()
+    #train_writer = tf.summary.FileWriter(logs_path + '/train', graph=tf.get_default_graph())
+    #test_writer  = tf.summary.FileWriter(logs_path + '/test',  graph=tf.get_default_graph())
     
 
     
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
+	cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                             labels=y_true)
-    cost = tf.reduce_mean(cross_entropy)
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
-    correct_prediction = tf.equal(y_pred_cls, y_true_cls)
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+	cost = tf.reduce_mean(cross_entropy)
+	optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
+	correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
-    session.run(tf.global_variables_initializer()) 
+	session.run(tf.global_variables_initializer()) 
 
-    saver = tf.train.Saver(max_to_keep=100000)
-    path = './cc-predictor-model/current'
-    start = 0
+	saver = tf.train.Saver(max_to_keep=100000)
+	path = args.outputdir
+	start = 0
     
-    if tf.train.latest_checkpoint(path) is not None:
-      print("Loading %s  %s " % (path, tf.train.latest_checkpoint(path)))
-      saver.restore(session, tf.train.latest_checkpoint(path))
-      found_num = re.search(r'\d+', tf.train.latest_checkpoint(path))
-      epoch = int(found_num.group(0))
-      print("Training from epoch %d" % epoch)
-      start = epoch * int(data.train.num_examples/batch_size) + 2 
-      print("StartIter: %d " % start)
-    train(start, num_iterations=10000000)
+	if tf.train.latest_checkpoint(path) is not None:
+		print("Loading %s  %s " % (path, tf.train.latest_checkpoint(path)))
+		saver.restore(session, tf.train.latest_checkpoint(path))
+		found_num = re.search(r'\d+', tf.train.latest_checkpoint(path))
+		epoch = int(found_num.group(0))
+		print("Training from epoch %d" % epoch)
+		start = epoch * int(data.train.num_examples/batch_size) + 2 
+		print("StartIter: %d " % start)
+	train(start, num_iterations=10000000)

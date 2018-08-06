@@ -66,7 +66,7 @@ class DataSet(object):
     return self._images[start:end], self._labels[start:end]
 
 
-def load_training_data(labelsfile, image_size, classes):
+def load_training_data(labelsfile, imagedir, image_size, classes):
     images = []
     labels = []
     #img_names = []
@@ -88,7 +88,7 @@ def load_training_data(labelsfile, image_size, classes):
                 print("Error: No match")
                 continue
             try:
-                image = cv2.imread(path)
+                image = cv2.imread(imagedir + "/" + path)
             except cv2.error as e:
                 print(e)
                 continue
@@ -115,9 +115,9 @@ def load_training_data(labelsfile, image_size, classes):
 
     
     aug_images, aug_labels = augment.augment_data(images, labels,
-                                                  use_random_rotation=False,
+                                                  use_random_rotation=True,
                                                   #use_random_shift=True , # This is no good ## Not enough RAM
-                                                  use_random_shear=False, # Not enough RAM  
+                                                  use_random_shear=True, # Not enough RAM  
                                                   use_random_zoom=False,
 						  skip_labels = [],        # Skip augment label 8.
 						  augementation_factor = 1) # Of times to run the  
@@ -128,13 +128,13 @@ def load_training_data(labelsfile, image_size, classes):
 
     return images, labels
 
-def read_train_sets(labelsfile, image_size, classes, validation_size):
+def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
   class DataSets(object):
     pass
   data_sets = DataSets()
 
  
-  images, labels = load_training_data(labelsfile, image_size, classes)
+  images, labels = load_training_data(labelsfile, imagedir, image_size, classes)
   print("SIZE: %d" % (sys.getsizeof(images) / (1024*1024)))
     
   images, labels = shuffle(images, labels)  
