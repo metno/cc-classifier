@@ -119,9 +119,9 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                                                   #use_random_shift=True , # This is no good ## Not enough RAM
                                                   use_random_shear=True, # Not enough RAM  
                                                   use_random_zoom=False,
-						  skip_labels = [],        # Skip augment label 8.
+						  skip_labels = [],       # Skip augment label 8.
 						  augementation_factor = 1) # Of times to run the  
-                                                                            # (random) augmentation
+	                                                # (random) augmentation
     images = np.concatenate([images, aug_images])
     labels = np.concatenate([labels, aug_labels])
     
