@@ -130,7 +130,9 @@ print("Smallest sample:  %d (cc=%s)" % (smallest_sample, smallest_key))
 
 lines = []
 for key, value in samples.items():
+	# with the following , samples will be evenly distributed .. 
     for i in range(0, smallest_sample):
+	# .. with this, all samples will be used. Ie mostly 8's compared to the rest
     #for i in range(0, len(value)):
         lines.append(value[i])
 

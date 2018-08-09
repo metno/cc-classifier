@@ -41,16 +41,22 @@ import numpy as np
         https://www.tensorflow.org/api_docs/python/tf/contrib/keras/preprocessing/image/random_zoom
 '''
 def augment_data(dataset, dataset_labels,
+				 aug_factors, 
 				 use_random_rotation=True,
                  use_random_shear=True,
                  use_random_shift=True,
                  use_random_zoom=True,
-				 augementation_factor=1, 
-                 skip_labels = [] ):
+				 
+                 skip_labels = [] ):	
+
 	augmented_images = []
 	augmented_image_labels = []
 
+	count = 0
 	for num in range (0, dataset.shape[0]):
+		if count % 1000 == 0:
+			print("Augmenting %d" % count)
+		count = count + 1
 		#print(dataset_labels[num])
 		skip = False
 		for l in range (0, len(skip_labels)):
@@ -60,6 +66,10 @@ def augment_data(dataset, dataset_labels,
 				break
 		if skip:
 			continue
+
+		i = dataset_labels[num].tolist().index(1.0)
+		#print(i)
+		augementation_factor = aug_factors[i]
 		for i in range(0, augementation_factor):
 			# original image:
 			#augmented_images.append(dataset[num])

@@ -11,6 +11,7 @@ import os
 from sklearn.utils import shuffle
 import tensorflow as tf
 import sys
+import math
 
 import augment
 
@@ -67,66 +68,107 @@ class DataSet(object):
 
 
 def load_training_data(labelsfile, imagedir, image_size, classes):
-    images = []
-    labels = []
-    #img_names = []
-    #cls = []
-    
-    print("Loading ..")
-    cnt = 0;
-    with open(labelsfile, "r") as ins:
-        for line in ins:
-            cnt = cnt  + 1
-            #if cnt % 600  == 0:
-            #    print("loaded %d" % cnt)
-            #    break
-            myre = re.compile(r'(\S+)\s+(-?\d)$')
-            mo = myre.search(line.strip())
-            if mo is not None:
-                path, cc = mo.groups()
-            else:
-                print("Error: No match")
-                continue
-            try:
-                image = cv2.imread(imagedir + "/" + path)
-            except cv2.error as e:
-                print(e)
-                continue
+	images = []
+	labels = []
+	#img_names = []
+	#cls = []
 
-            if image is None:
-                print("image %s is none" % path)
-                continue
-            #Already resized
-            #image = cv2.resize(image, (image_size, image_size),0,0, cv2.INTER_LINEAR)
-            if int(cc) < 0:
-                continue
-            
-            index = classes.index(int(cc))
-            image = image.astype(np.float32)
-            # convert from [0:255] => [0.0:1.0]
-            image = np.multiply(image, 1.0 / 255.0)
-            images.append(image)
-            label = np.zeros(len(classes))
-            label[index] = 1.0
-            labels.append(label)            
-            
-    images = np.array(images)
-    labels = np.array(labels)
 
-    
-    aug_images, aug_labels = augment.augment_data(images, labels,
-                                                  use_random_rotation=True,
-                                                  #use_random_shift=True , # This is no good ## Not enough RAM
-                                                  use_random_shear=True, # Not enough RAM  
+	label_counts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
+	
+	print("Loading ..")
+	cnt = 0;
+	with open(labelsfile, "r") as ins:
+		for line in ins:
+			cnt = cnt  + 1
+			#if cnt % 12000  == 0:
+			#	print("loaded %d" % cnt)
+			#	break
+			myre = re.compile(r'(\S+)\s+(-?\d)$')
+			mo = myre.search(line.strip())
+			if mo is not None:
+				path, cc = mo.groups()				
+			else:
+				print("Error: No match")
+				continue
+			try:
+				image = cv2.imread(imagedir + "/" + path)
+			except cv2.error as e:
+				print(e)
+				continue
+
+			if image is None:
+				print("image %s is none" % path)
+				continue
+			# Already resized
+	        # image = cv2.resize(image, (image_size, image_size),0,0, cv2.INTER_LINEAR)
+			if int(cc) < 0:
+				continue
+
+			label_counts[int(cc)] = label_counts[int(cc)] + 1 
+			index = classes.index(int(cc))
+			image = image.astype(np.float32)
+			# convert from [0:255] => [0.0:1.0]
+			image = np.multiply(image, 1.0 / 255.0)
+			images.append(image)
+			label = np.zeros(len(classes))
+			label[index] = 1.0
+			labels.append(label)            
+            
+	images = np.array(images)
+	labels = np.array(labels)
+
+	biggest =  max(label_counts, key=label_counts.get)
+	# Oversample minority classes. 
+	print("Big: %d Count: %d" % (biggest, label_counts[biggest]))  # this is 8 when using all data.
+
+	use_random_rotation=True
+	use_random_shift=True   # This is no good ## Not enough RAM
+	use_random_shear=True   # Not enough RAM  
+	use_random_zoom=False
+	num_augs_enabled = 0
+	if use_random_rotation:
+		num_augs_enabled = num_augs_enabled + 1
+	if use_random_shift:
+		num_augs_enabled = num_augs_enabled + 1
+	if use_random_shear:
+		num_augs_enabled = num_augs_enabled + 1
+	if use_random_zoom:
+		num_augs_enabled = num_augs_enabled + 1
+	print("Num augs enabled: %d" % num_augs_enabled)
+	aug_factors = dict()
+	for ccval in range(0, 9):  # cloud coverage, values in [0,8]
+		if num_augs_enabled == 0:
+			continue
+		aug_factors[ccval] = round((label_counts[biggest]/num_augs_enabled) / label_counts[ccval])
+		
+		print("dataset.load_training_data(): label %d, " 
+			  "Aug_factor: %f, "
+			  "Num images: %f, "
+			  "Num images after oversampling: %f" %
+			  (ccval,
+			   aug_factors[ccval],
+			   label_counts[ccval],
+			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
+		
+
+		
+	over_sample = True # Oversample by augmentation the the cc's which in the minority .  
+	print("Augmenting data ..")
+	aug_images, aug_labels = augment.augment_data(images, labels,
+												  aug_factors,              # Of times to run the  
+												                            # (random) augmentation
+												  use_random_rotation=True,
+                                                  use_random_shift=True ,  # This is no good ## Not enough RAM
+                                                  use_random_shear=True,   # Not enough RAM  
                                                   use_random_zoom=False,
-						  skip_labels = [],       # Skip augment label 8.
-						  augementation_factor = 1) # Of times to run the  
-	                                                # (random) augmentation
-    images = np.concatenate([images, aug_images])
-    labels = np.concatenate([labels, aug_labels])
+												  skip_labels = [],        # Skip augment label 8.				  
+												  )
+	images = np.concatenate([images, aug_images])
+	labels = np.concatenate([labels, aug_labels])
     
 
-    return images, labels
+	return images, labels
 
 def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
   class DataSets(object):
