@@ -155,15 +155,20 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 		
 	over_sample = True # Oversample by augmentation the the cc's which in the minority .  
 	print("Augmenting data ..")
+	"""
 	aug_images, aug_labels = augment.augment_data(images, labels,
 												  aug_factors,              # Of times to run the  
 												                            # (random) augmentation
-												  use_random_rotation=True,
-                                                  use_random_shift=True ,  # This is no good ## Not enough RAM
-                                                  use_random_shear=True,   # Not enough RAM  
-                                                  use_random_zoom=False,
+												  use_random_rotation=use_random_rotation,
+                                                  use_random_shift=use_random_shift, # This is no good ## Not enough RAM
+                                                  use_random_shear=use_random_shear,   # Not enough RAM  
+                                                  use_random_zoom=use_random_zoom,
 												  skip_labels = [],        # Skip augment label 8.				  
 												  )
+	"""
+
+	aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts, aug_factors)
+	
 	images = np.concatenate([images, aug_images])
 	labels = np.concatenate([labels, aug_labels])
     

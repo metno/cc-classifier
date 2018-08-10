@@ -175,7 +175,6 @@ if __name__ == "__main__":
     
 	img_size = 128
 	num_channels = 3
-	train_path='training_data'
     
 	# We shall load all the training and validation images and labels into memory
 	# using openCV and use that during training

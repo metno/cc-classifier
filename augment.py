@@ -109,3 +109,49 @@ def augment_data(dataset, dataset_labels,
 				augmented_image_labels.append(dataset_labels[num])
 
 	return np.array(augmented_images), np.array(augmented_image_labels)
+
+
+def augment_data2(dataset, dataset_labels, big, label_counts, aug_factors):
+	
+	counts = label_counts.copy()
+	augmented_images = []
+	augmented_image_labels = []
+	
+	for num in range (0, dataset.shape[0]):
+		if num % 1000 == 0:
+			print("Augmenting %d .." % num)
+			
+		cc = dataset_labels[num].tolist().index(1.0)
+		augementation_factor = aug_factors[cc]
+		for i in range(0, augementation_factor):
+			if counts[cc] < counts[big]:
+				augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
+																							 20,
+																							 row_axis=0,
+																							 col_axis=1,
+																							 channel_axis=2))
+				augmented_image_labels.append(dataset_labels[num])
+				counts[cc] = counts[cc] + 1
+
+			if counts[cc] < counts[big]:
+				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
+																						  0.2,
+																						  row_axis=0,
+																						  col_axis=1,
+																						  channel_axis=2))
+				augmented_image_labels.append(dataset_labels[num])
+				counts[cc] = counts[cc] + 1
+				
+			if counts[cc] < counts[big]:
+				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
+																						  0.2,
+																						  0.2,
+																						  row_axis=0,
+																						  col_axis=1,
+																						  channel_axis=2))
+				augmented_image_labels.append(dataset_labels[num])
+				counts[cc] = counts[cc] + 1
+				
+		#print("Num %d's: %d" %  (cc, counts[cc]))
+	print(counts)
+	return np.array(augmented_images), np.array(augmented_image_labels)
