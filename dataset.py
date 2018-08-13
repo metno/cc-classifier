@@ -123,7 +123,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 	print("Big: %d Count: %d" % (biggest, label_counts[biggest]))  # this is 8 when using all data.
 
 	use_random_rotation=True
-	use_random_shift=True   # This is no good ## Not enough RAM
+	use_random_shift=False   # This is no good ## Not enough RAM
 	use_random_shear=True   # Not enough RAM  
 	use_random_zoom=False
 	num_augs_enabled = 0

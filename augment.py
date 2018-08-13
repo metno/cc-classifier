@@ -142,6 +142,8 @@ def augment_data2(dataset, dataset_labels, big, label_counts, aug_factors):
 				augmented_image_labels.append(dataset_labels[num])
 				counts[cc] = counts[cc] + 1
 				
+			
+			"""	
 			if counts[cc] < counts[big]:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
 																						  0.2,
@@ -151,7 +153,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts, aug_factors):
 																						  channel_axis=2))
 				augmented_image_labels.append(dataset_labels[num])
 				counts[cc] = counts[cc] + 1
-				
+			"""	
 		#print("Num %d's: %d" %  (cc, counts[cc]))
 	print(counts)
 	return np.array(augmented_images), np.array(augmented_image_labels)
