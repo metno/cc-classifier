@@ -135,7 +135,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 	for ccval in range(0, 9):  # cloud coverage, values in [0,8]
 		if num_augs_enabled == 0:
 			continue
-		aug_factors[ccval] = round((label_counts[biggest]/num_augs_enabled) / label_counts[ccval])
+		aug_factors[ccval] = round((label_counts[8]/num_augs_enabled) / label_counts[ccval])
 		
 		print("dataset.load_training_data(): label %d, " 
 			  "Aug_factor: %f, "
