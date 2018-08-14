@@ -150,10 +150,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 			   aug_factors[ccval],
 			   label_counts[ccval],
 			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
-		
-
-		
-	over_sample = True # Oversample by augmentation the the cc's which in the minority .  
+				
 	print("Augmenting data ..")
 	"""
 	aug_images, aug_labels = augment.augment_data(images, labels,
@@ -167,7 +164,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 												  )
 	"""
 
-	aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts, aug_factors)
+	aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts)
 	
 	images = np.concatenate([images, aug_images])
 	labels = np.concatenate([labels, aug_labels])
