@@ -171,7 +171,7 @@ if __name__ == "__main__":
     
     # 25% of the data will automatically be used for validation
 	#validation_size = 0.35
-	validation_size = 0.25
+	validation_size = 0.30
     
 	img_size = 128
 	num_channels = 3
