@@ -6,10 +6,19 @@ import os,glob,cv2
 import sys,argparse
 import math
 import predictor
+import argparse
+
+
 
 filename =sys.argv[1] 
+#cpdir = './cc-predictor-model'
+cpdir = './modeldata'
 
-cpdir = './cc-predictor-model'
+#parser = argparse.ArgumentParser(description='Do cloud coverage preditcion on image')
+#parser.add_argument('--filename', type=str, help='Input image to do prediction on')
+#parser.add_argument('--modeldir', type=str, help='Model dir')
+#parser.add_argument('--epoch', type=str, help='ecpoch')
+#args = parser.parse_args()
 
 ## Iteration 397131 Training Epoch 1316 --- Training Accuracy: 100.0%, Validation Accuracy: 100.0%,  Validation Loss: 0.022
 #checkpoint = 4541
@@ -29,8 +38,9 @@ cpdir = './cc-predictor-model'
 #checkpoint = 1428
 
 # v11-python3-rotate-augmentation .. 
-checkpoint = 623
+#checkpoint = 623
 
+checkpoint = 326
 
 predictor = predictor.Predictor(cpdir, checkpoint)
 result = predictor.predict(filename)
