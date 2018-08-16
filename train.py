@@ -171,7 +171,7 @@ if __name__ == "__main__":
     
     # 25% of the data will automatically be used for validation
 	#validation_size = 0.35
-	validation_size = 0.30
+	validation_size = 0.25
     
 	img_size = 128
 	num_channels = 3
@@ -187,6 +187,7 @@ if __name__ == "__main__":
 
 	session = tf.Session()
 
+	# GOLANG note that we must label the input-tensor! (name='x')
 	x = tf.placeholder(tf.float32, shape=[None, img_size,img_size,num_channels], name='x')
     
 	## labels
@@ -237,8 +238,10 @@ if __name__ == "__main__":
     # Softmax is a function that maps [-inf, +inf] to [0, 1] similar as Sigmoid. But Softmax also
     # normalizes the sum of the values(output vector) to be 1.    
 	y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
-
-	y_pred_cls = tf.argmax(y_pred, dimension=1)
+	# GOLANG note that we must label the infer-operation!!
+	y_pred_cls = tf.argmax(y_pred, dimension=1, name="infer")
+	#y_pred_cls = tf.argmax(y_pred, dimension=1)
+	
 	session.run(tf.global_variables_initializer())
     # create log writer object
     #merged = tf.summary.merge_all()

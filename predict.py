@@ -10,15 +10,17 @@ import argparse
 
 
 
-filename =sys.argv[1] 
-#cpdir = './cc-predictor-model'
-cpdir = './modeldata'
 
-#parser = argparse.ArgumentParser(description='Do cloud coverage preditcion on image')
-#parser.add_argument('--filename', type=str, help='Input image to do prediction on')
-#parser.add_argument('--modeldir', type=str, help='Model dir')
+#cpdir = './cc-predictor-model'
+#cpdir = './modeldata'
+
+parser = argparse.ArgumentParser(description='Do cloud coverage preditcion on image')
+parser.add_argument('--filename', type=str, help='Input image to do prediction on')
+parser.add_argument('--modeldir', type=str, help='Model dir', default='modeldata')
 #parser.add_argument('--epoch', type=str, help='ecpoch')
-#args = parser.parse_args()
+args = parser.parse_args()
+
+#filename =sys.argv[1] 
 
 ## Iteration 397131 Training Epoch 1316 --- Training Accuracy: 100.0%, Validation Accuracy: 100.0%,  Validation Loss: 0.022
 #checkpoint = 4541
@@ -40,10 +42,10 @@ cpdir = './modeldata'
 # v11-python3-rotate-augmentation .. 
 #checkpoint = 623
 
-checkpoint = 326
+checkpoint = 692
 
-predictor = predictor.Predictor(cpdir, checkpoint)
-result = predictor.predict(filename)
+predictor = predictor.Predictor(args.modeldir, checkpoint)
+result = predictor.predict(args.filename)
 
 if isinstance(result, (list, tuple, np.ndarray)):
     cc_cnn = np.argmax(result[0]) # Array of probabilities
