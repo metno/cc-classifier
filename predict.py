@@ -42,14 +42,14 @@ args = parser.parse_args()
 # v11-python3-rotate-augmentation .. 
 #checkpoint = 623
 
-checkpoint = 692
+checkpoint = 104
 
 predictor = predictor.Predictor(args.modeldir, checkpoint)
 result = predictor.predict(args.filename)
 
 if isinstance(result, (list, tuple, np.ndarray)):
     cc_cnn = np.argmax(result[0]) # Array of probabilities
-    #print(result[0])
+    print(result[0])
 else:
     cc_cnn = result  # Error
 

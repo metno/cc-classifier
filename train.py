@@ -14,6 +14,8 @@ from tensorflow import set_random_seed
 import argparse
 import os
 
+# This script was initially from a cv-tricks.com tutorial
+# It has a MIT licence
 
 # TODO: 
 # - Logging for tensorboard
@@ -123,31 +125,56 @@ def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, val_los
 
 def train(start, num_iterations):
 
-    # merge all summaries into a single "operation" which we can execute in a session 
-    summary_op = tf.summary.merge_all()
+	# merge all summaries into a single "operation" which we can execute in a session 
+	summary_op = tf.summary.merge_all()
     
-    for i in range(start, num_iterations):
-        x_batch, y_true_batch = data.train.next_batch(batch_size)
-        x_valid_batch, y_valid_batch = data.valid.next_batch(batch_size)
+	for i in range(start, num_iterations):
+		x_batch, y_true_batch = data.train.next_batch(batch_size)
+		x_valid_batch, y_valid_batch = data.valid.next_batch(batch_size)
 
         
-        feed_dict_tr = {x: x_batch,
-                        y_true: y_true_batch}
-        feed_dict_val = {x: x_valid_batch,
-                         y_true: y_valid_batch}
+		feed_dict_tr = {x: x_batch,
+						y_true: y_true_batch}
+		feed_dict_val = {x: x_valid_batch,
+						 y_true: y_valid_batch}
 
-        #summary = session.run([optimizer, merged], feed_dict=feed_dict_tr)
-        #train_writer.add_summary(summary, i)
-        session.run(optimizer, feed_dict=feed_dict_tr)
-        # write log
-        #writer.add_summary(summary,  i)
-        if i % int(data.train.num_examples/batch_size) == 0: 
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
-            epoch = int(i / int(data.train.num_examples/batch_size))
-            show_progress(i, epoch, feed_dict_tr, feed_dict_val, val_loss)
+		#summary = session.run([optimizer, merged], feed_dict=feed_dict_tr)
+		#train_writer.add_summary(summary, i)
+		session.run(optimizer, feed_dict=feed_dict_tr)
+		# write log
+		#writer.add_summary(summary,  i)
+		if i % int(data.train.num_examples/batch_size) == 0: 
+			val_loss = session.run(cost, feed_dict=feed_dict_val)
+			epoch = int(i / int(data.train.num_examples/batch_size))
+			show_progress(i, epoch, feed_dict_tr, feed_dict_val, val_loss)
 
-            saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
-
+			saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
+			
+			# Export the model for use with other languages
+			"""
+			builder = tf.saved_model.builder.SavedModelBuilder("cc-predictor-model-%d" % epoch)
+			tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
+			tensor_info_y = tf.saved_model.utils.build_tensor_info(y_pred)
+ 
+			prediction_signature = (
+				tf.saved_model.signature_def_utils.build_signature_def(
+					inputs={'input': tensor_info_x},
+					outputs={'output': tensor_info_y},
+					method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME))
+ 
+			
+ 
+			builder.add_meta_graph_and_variables(
+				session, [tf.saved_model.tag_constants.SERVING],
+				signature_def_map={
+					tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
+					prediction_signature,
+				},
+			)
+						
+			builder.save(as_text=False)
+			"""
+			#tf.saved_model.simple_save(session, "cc-predictor-model-%d" % i, inputs=feed_dict_tr, outputs=feed_dict_val)
 
 if __name__ == "__main__":
 
@@ -171,7 +198,7 @@ if __name__ == "__main__":
     
     # 25% of the data will automatically be used for validation
 	#validation_size = 0.35
-	validation_size = 0.25
+	validation_size = 0.30
     
 	img_size = 128
 	num_channels = 3

@@ -5,10 +5,6 @@ import sys,argparse
 
 
 class Predictor(object):
-	def get_mean_brightness(self, img):
-		hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-		brightness = hsv[:, :, 2].ravel().mean() / 255
-		return brightness
     
 	def __init__(self, trained_model_dir , checkpoint):
 		#tf.logging.set_verbosity(tf.logging.ERROR)
@@ -72,7 +68,11 @@ class Predictor(object):
 		saver.restore(self.sess, self.modelfile)
 		# Accessing the default graph which we have restored
 		self.graph = tf.get_default_graph()
-        
+
+
+		#tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], "cc-predictor-model")
+
+		
 		# Now, let's get hold of the op that we can be processed to get the
 		# output.
 		# In the original network y_pred is the tensor that is the prediction

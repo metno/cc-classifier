@@ -81,7 +81,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 	with open(labelsfile, "r") as ins:
 		for line in ins:
 			cnt = cnt  + 1
-			#if cnt % 12000  == 0:
+			#if cnt % 600  == 0:
 			#	print("loaded %d" % cnt)
 			#	break
 			myre = re.compile(r'(\S+)\s+(-?\d)$')
