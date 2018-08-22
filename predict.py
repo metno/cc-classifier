@@ -17,34 +17,11 @@ import argparse
 parser = argparse.ArgumentParser(description='Do cloud coverage preditcion on image')
 parser.add_argument('--filename', type=str, help='Input image to do prediction on')
 parser.add_argument('--modeldir', type=str, help='Model dir', default='modeldata')
-#parser.add_argument('--epoch', type=str, help='ecpoch')
+parser.add_argument('--epoch', type=str, help='epoch', default=888)
 args = parser.parse_args()
 
-#filename =sys.argv[1] 
 
-## Iteration 397131 Training Epoch 1316 --- Training Accuracy: 100.0%, Validation Accuracy: 100.0%,  Validation Loss: 0.022
-#checkpoint = 4541
-
-# v5
-#checkpoint = 4129
-# v6
-#checkpoint = 433
-
-# v7
-#checkpoint = 3682
-
-# v8
-#checkpoint = 3060
-
-# v11
-#checkpoint = 1428
-
-# v11-python3-rotate-augmentation .. 
-#checkpoint = 623
-
-checkpoint = 104
-
-predictor = predictor.Predictor(args.modeldir, checkpoint)
+predictor = predictor.Predictor(args.modeldir, args.epoch)
 result = predictor.predict(args.filename)
 
 if isinstance(result, (list, tuple, np.ndarray)):
