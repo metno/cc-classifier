@@ -23,8 +23,8 @@ while (<>) {
 	my $cc_cnn = int($3);
 	my $spread = $4 + 0;
 
-	if ( $cc_cnn < 0 || $cc_cnn != 8) { # Bias ..
-	#if ( $cc_cnn < 0 ) {
+	#if ( $cc_cnn < 0 || $cc_cnn != 8) { # Bias ..
+	if ( $cc_cnn < 0 ) {
 	    next;
 	} else {
 	    $i++;

@@ -9,10 +9,10 @@ from pandas import *
 parser = argparse.ArgumentParser(description='Create a confusio namtrix')
 parser.add_argument('--labelsfile', type=str, help="A labels file containing lines like this:\n fileNNN.jpg 6")
 parser.add_argument('--modeldir', type=str, help='Model dir', default='modeldata')
+parser.add_argument('--epoch', type=str, help='epoch', default=888)
 args = parser.parse_args()
 
-checkpoint = 692
-predictor = predictor.Predictor(args.modeldir, checkpoint)
+predictor = predictor.Predictor(args.modeldir, args.epoch)
 
 imagedir = '/lustre/storeB/project/metproduction/products/webcams'
 
@@ -32,7 +32,7 @@ confusion_matrix = [
 count = 0
 with open(args.labelsfile, "r") as ins:
 	for line in ins:
-		myre = re.compile(r'training_data/(\S+)\s+(-?\d)$')
+		myre = re.compile(r'(\S+)\s+(-?\d)$')
 		mo = myre.search(line.strip())
 		if mo is not None:
 			image_file, cc = mo.groups()
