@@ -108,7 +108,8 @@ def create_fc_layer(input,
     weights = create_weights(shape=[num_inputs, num_outputs])
     biases = create_biases(num_outputs)
 
-    # Fully connected layer takes input x and produces wx+b.Since, these are matrices, we use matmul function in Tensorflow
+    # Fully connected layer takes input x and produces wx+b.Since, these are matrices,
+	# we use matmul function in Tensorflow
     layer = tf.matmul(input, weights) + biases
     if use_relu:
         layer = tf.nn.relu(layer)
@@ -284,7 +285,6 @@ if __name__ == "__main__":
 	optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
 	correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
 
 	session.run(tf.global_variables_initializer()) 
 

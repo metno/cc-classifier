@@ -11,9 +11,9 @@ from tensorflow.python.framework import graph_util
 # Export a model for use with  tensorflow_model_server or
 # for use with for instance a go-program .
 
-cpdir = './modeldata'
+cpdir = '../models/v21'
 
-checkpoint = 104
+checkpoint = 888
 
 
 model_name =  "cc-predictor-model"
@@ -23,6 +23,8 @@ modelfile = "%s/%s-%d" % ( cpdir, model_name, checkpoint)
 metafile = "%s-%d.meta" % (checkpoint_file, checkpoint)
 
 sess = tf.Session()
+sess.run([tf.local_variables_initializer(), tf.tables_initializer()])
+
 # Step-1: Recreate the network graph. At this step only graph is
 # created.        
 saver = tf.train.import_meta_graph(metafile)    
@@ -31,33 +33,34 @@ saver.restore(sess, modelfile)
 # Accessing the default graph which we have restored
 graph = tf.get_default_graph()
 
-input_graph_def = graph.as_graph_def()
-
-
-
-#builder = tf.saved_model.builder.SavedModelBuilder("cc-predictor-model")
-
 y_pred = graph.get_tensor_by_name("y_pred:0")
 x = graph.get_tensor_by_name("x:0")
 y_true = graph.get_tensor_by_name("y_true:0")
+#y_pred_cls = graph.get_tensor_by_name("infer:0")
+y_pred_cls = tf.argmax(y_pred, dimension=1, name="infer")
 
-tf.saved_model.simple_save(sess, "cc-predictor-model-s",
-						   inputs={"x": x, "y_true": y_true},
-						   outputs={"y_pred", y_pred})
+#values, indices = tf.nn.top_k(y_pred_cls, 10)
+#table = tf.contrib.lookup.index_to_string_table_from_tensor(
+#	tf.constant([str(i) for i in range(10)]))
+#prediction_classes = table.lookup(tf.to_int64(indices))
 
-#tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
-#tensor_info_y = tf.saved_model.utils.build_tensor_info(y_pred)
-#y_test_images = np.zeros((1, 9))
+builder = tf.saved_model.builder.SavedModelBuilder("cc-predictor-model")
+#builder.add_meta_graph_and_variables(sess,["serve"])
 
-"""
+tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
+tensor_info_y_pred = tf.saved_model.utils.build_tensor_info(y_pred)
+tensor_info_y_true = tf.saved_model.utils.build_tensor_info(y_true)
+tensor_info_y_pred_cls = tf.saved_model.utils.build_tensor_info(y_pred_cls)
+
+
 prediction_signature = (
 	tf.saved_model.signature_def_utils.build_signature_def(
 		inputs={'input': tensor_info_x},
-		outputs={'output': tensor_info_y},
+		outputs={'predict': tensor_info_y_true},
 		method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME))
-
-
-
+ 
+			
+ 
 builder.add_meta_graph_and_variables(
 	sess, [tf.saved_model.tag_constants.SERVING],
 	signature_def_map={
@@ -65,7 +68,9 @@ builder.add_meta_graph_and_variables(
 		prediction_signature,
 	},
 )
-						
+
+
 builder.save()
-"""
+						
+
 
