@@ -17,21 +17,17 @@ import os
 # This script was initially from a cv-tricks.com tutorial
 # It has a MIT licence
 
-# TODO: 
-# - Logging for tensorboard
-
-
-
-logs_path = "/tmp/tf/cc-predictor-model"
-
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
 parser.add_argument('--imagedir', type=str, help='The training and validation data')
-parser.add_argument('--outputdir', type=str, help='where to write model snapshots')	
+parser.add_argument('--outputdir', type=str, help='where to write model snapshots')
+parser.add_argument('--logdir', type=str, default='/tmp/tf', help='Metrics data')	
 args = parser.parse_args()
 
-# For tensorboard, not used yet.
+logs_path = args.logdir
+
+# For tensorboard
 def variable_summaries(var):
   """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
   with tf.name_scope('summaries'):
@@ -123,7 +119,10 @@ def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, val_los
 	acc = session.run(accuracy, feed_dict=feed_dict_train)
 	#val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
 	summary, val_acc = session.run([merged, accuracy], feed_dict=feed_dict_validate)
+
+	# Tensorboard: 
 	test_writer.add_summary(summary, iteration)
+
 	#print('Accuracy at step %s: %s' % (iteration, val_acc))
 	msg = "Iteration {4} Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
 	print("%s %s" % (msg.format(epoch + 1, acc, val_acc, val_loss, iteration +1), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
@@ -150,7 +149,7 @@ def train(start, num_iterations):
 							  options=run_options,
 							  run_metadata=run_metadata)
 		
-		
+		# For tensorboard:
 		train_writer.add_run_metadata(run_metadata, 'step%03d' % i)			
 		train_writer.add_summary(summary, i)
 		
@@ -268,7 +267,7 @@ if __name__ == "__main__":
             use_relu=True)
 
     #dropped = tf.nn.dropout(layer_fc1, 0.5)
-	dropped = tf.nn.dropout(layer_fc1, 0.5)
+	dropped = tf.nn.dropout(layer_fc1, 0.7)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
             num_outputs=num_classes,
