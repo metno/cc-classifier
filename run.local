@@ -1,1 +1,1 @@
-./train.py --labelsfile ../data/v18/alldata.txt --imagedir ../data/v18/ --outputdir modeldata
+./train.py --labelsfile ../data/v22min/alldata.txt  --imagedir ../data/v22min/training_data --outputdir modeldata/v22min

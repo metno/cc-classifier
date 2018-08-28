@@ -22,7 +22,7 @@ import os
 
 
 
-#logs_path = "/tmp/tf/cc-predictor-model"
+logs_path = "/tmp/tf/cc-predictor-model"
 
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
@@ -57,11 +57,11 @@ def create_convolutional_layer(input,
     
     # Define the weights that will be trained.
     weights = create_weights(shape=[conv_filter_size, conv_filter_size, num_input_channels, num_filters])
-    variable_summaries(weights)
+    #variable_summaries(weights)
 
     ## Create biases using the create_biases function. These are also trained.
     biases = create_biases(num_filters)
-    variable_summaries(biases)
+    #variable_summaries(biases)
 
     
     ## Creating the convolutional layer
@@ -104,31 +104,34 @@ def create_fc_layer(input,
              num_outputs,
              use_relu=True):
     
-    #Let's define trainable weights and biases.
-    weights = create_weights(shape=[num_inputs, num_outputs])
-    biases = create_biases(num_outputs)
+	#Let's define trainable weights and biases.
+	weights = create_weights(shape=[num_inputs, num_outputs])
+	biases = create_biases(num_outputs)
 
-    # Fully connected layer takes input x and produces wx+b.Since, these are matrices,
+	# Fully connected layer takes input x and produces wx+b.Since, these are matrices,
 	# we use matmul function in Tensorflow
-    layer = tf.matmul(input, weights) + biases
-    if use_relu:
-        layer = tf.nn.relu(layer)
-
-    return layer
+	layer = tf.matmul(input, weights) + biases
+	if use_relu:
+		layer = tf.nn.relu(layer, name='activation')
+		
+	tf.summary.histogram('activations', layer)
+	
+	return layer
 
 
 def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, val_loss):
-    acc = session.run(accuracy, feed_dict=feed_dict_train)
-    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Iteration {4} Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-    print("%s %s" % (msg.format(epoch + 1, acc, val_acc, val_loss, iteration +1), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+	acc = session.run(accuracy, feed_dict=feed_dict_train)
+	#val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
+	summary, val_acc = session.run([merged, accuracy], feed_dict=feed_dict_validate)
+	test_writer.add_summary(summary, iteration)
+	#print('Accuracy at step %s: %s' % (iteration, val_acc))
+	msg = "Iteration {4} Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
+	print("%s %s" % (msg.format(epoch + 1, acc, val_acc, val_loss, iteration +1), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
 def train(start, num_iterations):
-
-	# merge all summaries into a single "operation" which we can execute in a session 
-	summary_op = tf.summary.merge_all()
-    
+	
+	
 	for i in range(start, num_iterations):
 		x_batch, y_true_batch = data.train.next_batch(batch_size)
 		x_valid_batch, y_valid_batch = data.valid.next_batch(batch_size)
@@ -139,12 +142,20 @@ def train(start, num_iterations):
 		feed_dict_val = {x: x_valid_batch,
 						 y_true: y_valid_batch}
 
-		#summary = session.run([optimizer, merged], feed_dict=feed_dict_tr)
-		#train_writer.add_summary(summary, i)
-		session.run(optimizer, feed_dict=feed_dict_tr)
-		# write log
-		#writer.add_summary(summary,  i)
-		if i % int(data.train.num_examples/batch_size) == 0: 
+		
+		run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+		run_metadata = tf.RunMetadata()
+		summary, _ = session.run([merged, optimizer],
+							  feed_dict_tr,
+							  options=run_options,
+							  run_metadata=run_metadata)
+		
+		
+		train_writer.add_run_metadata(run_metadata, 'step%03d' % i)			
+		train_writer.add_summary(summary, i)
+		
+		if i % int(data.train.num_examples/batch_size) == 0:
+			
 			val_loss = session.run(cost, feed_dict=feed_dict_val)
 			epoch = int(i / int(data.train.num_examples/batch_size))
 			show_progress(i, epoch, feed_dict_tr, feed_dict_val, val_loss)
@@ -269,23 +280,30 @@ if __name__ == "__main__":
 	# GOLANG note that we must label the infer-operation!!
 	y_pred_cls = tf.argmax(y_pred, dimension=1, name="infer")
 	#y_pred_cls = tf.argmax(y_pred, dimension=1)
-	
-	session.run(tf.global_variables_initializer())
-    # create log writer object
-    #merged = tf.summary.merge_all()
-    #train_writer = tf.summary.FileWriter(logs_path + '/train', graph=tf.get_default_graph())
-    #test_writer  = tf.summary.FileWriter(logs_path + '/test',  graph=tf.get_default_graph())
-    
-
-    
+		    
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
 	cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                             labels=y_true)
+	#tf.summary.scalar('cross_entropy', cross_entropy)
+	
 	cost = tf.reduce_mean(cross_entropy)
 	optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
 	correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
+	
+	# Create a summary to monitor cost tensor
+	tf.summary.scalar("loss", cost)
+	# Create a summary to monitor accuracy tensor
+	tf.summary.scalar("Accuracy", accuracy)
+	
+	# merge all summaries into a single "operation" which we can execute in a session 
+	merged = tf.summary.merge_all()
+	# create log writer object
+	#train_writer = tf.summary.FileWriter(logs_path + '/train', graph=tf.get_default_graph())
+	#test_writer  = tf.summary.FileWriter(logs_path + '/test',  graph=tf.get_default_graph())
+	train_writer = tf.summary.FileWriter(logs_path + '/train', session.graph)
+	test_writer  = tf.summary.FileWriter(logs_path + '/test')
+	
 	session.run(tf.global_variables_initializer()) 
 
 	saver = tf.train.Saver(max_to_keep=100000)
