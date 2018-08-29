@@ -44,7 +44,7 @@ y_pred_cls = tf.argmax(y_pred, dimension=1, name="infer")
 #	tf.constant([str(i) for i in range(10)]))
 #prediction_classes = table.lookup(tf.to_int64(indices))
 
-builder = tf.saved_model.builder.SavedModelBuilder("cc-predictor-model")
+#builder = tf.saved_model.builder.SavedModelBuilder("cc-predictor-model")
 #builder.add_meta_graph_and_variables(sess,["serve"])
 
 tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
@@ -53,6 +53,13 @@ tensor_info_y_true = tf.saved_model.utils.build_tensor_info(y_true)
 tensor_info_y_pred_cls = tf.saved_model.utils.build_tensor_info(y_pred_cls)
 
 
+
+tf.saved_model.simple_save(sess,
+            "cc-predictor-model",
+            inputs={"x": x},
+            outputs={"infer": y_pred_cls, "y_pred": y_pred})
+
+"""
 prediction_signature = (
 	tf.saved_model.signature_def_utils.build_signature_def(
 		inputs={'input': tensor_info_x},
@@ -69,8 +76,10 @@ builder.add_meta_graph_and_variables(
 	},
 )
 
-
 builder.save()
+"""
+
+
 						
 
 

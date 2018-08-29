@@ -21,7 +21,9 @@ import os
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
 parser.add_argument('--imagedir', type=str, help='The training and validation data')
-parser.add_argument('--outputdir', type=str, help='where to write model snapshots')
+parser.add_argument('--outputdir', type=str, default='modeldata', help='where to write model snapshots')
+parser.add_argument('--inputdir', type=str, default='modeldata', help='Start training on exising model')
+
 parser.add_argument('--logdir', type=str, default='/tmp/tf', help='Metrics data')	
 args = parser.parse_args()
 
@@ -309,7 +311,7 @@ if __name__ == "__main__":
 	path = args.outputdir
 	start = 0
     
-	if tf.train.latest_checkpoint(path) is not None:
+	if path is not None and tf.train.latest_checkpoint(path) is not None:
 		print("Loading %s  %s " % (path, tf.train.latest_checkpoint(path)))
 		saver.restore(session, tf.train.latest_checkpoint(path))
 		found_num = re.search(r'\d+', tf.train.latest_checkpoint(path))
