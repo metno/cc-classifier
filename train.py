@@ -308,7 +308,7 @@ if __name__ == "__main__":
 	session.run(tf.global_variables_initializer()) 
 
 	saver = tf.train.Saver(max_to_keep=100000)
-	path = args.outputdir
+	path = args.inputdir
 	start = 0
     
 	if path is not None and tf.train.latest_checkpoint(path) is not None:

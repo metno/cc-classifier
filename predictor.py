@@ -48,8 +48,8 @@ class Predictor(object):
 			# Reading the image using OpenCV
 			image = cv2.imread(image_path)
 			image = cv2.resize(image, (image_size, image_size),0,0, cv2.INTER_LINEAR)
-			cv2.imshow("cropped", image)
-			cv2.waitKey(0)
+			#cv2.imshow("cropped", image)
+			#cv2.waitKey(0)
 		except cv2.error as e:
 			sys.stderr.write(str(e) + "\n")
 			sys.stderr.write("Corrupt image. Skipping image_path. %s\n" % image_path)
