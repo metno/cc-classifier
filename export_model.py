@@ -7,13 +7,18 @@ import sys,argparse
 import math
 import predictor
 from tensorflow.python.framework import graph_util
+import argparse
 
 # Export a model for use with  tensorflow_model_server or
 # for use with for instance a go-program .
 
-cpdir = '../models/v21'
+parser = argparse.ArgumentParser(description='Exports a model tensorflow model for use by external programs')
+parser.add_argument('--modeldir', type=str, default='../models/v21', help='modeldir')
+parser.add_argument('--checkpoint', type=str, default=888, help='Checkpoint to load')
+args = parser.parse_args()
 
-checkpoint = 888
+cpdir = args.modeldir
+checkpoint = args.checkpoint
 
 
 model_name =  "cc-predictor-model"
