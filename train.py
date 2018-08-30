@@ -279,7 +279,7 @@ if __name__ == "__main__":
     # normalizes the sum of the values(output vector) to be 1.    
 	y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
 	# GOLANG note that we must label the infer-operation!!
-	y_pred_cls = tf.argmax(y_pred, dimension=1, name="infer")
+	y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 	#y_pred_cls = tf.argmax(y_pred, dimension=1)
 		    
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
@@ -314,7 +314,8 @@ if __name__ == "__main__":
 	if path is not None and tf.train.latest_checkpoint(path) is not None:
 		print("Loading %s  %s " % (path, tf.train.latest_checkpoint(path)))
 		saver.restore(session, tf.train.latest_checkpoint(path))
-		found_num = re.search(r'\d+', tf.train.latest_checkpoint(path))
+		found_num = re.search(r'\d+$', tf.train.latest_checkpoint(path))
+		print(tf.train.latest_checkpoint(path))
 		epoch = int(found_num.group(0))
 		print("Training from epoch %d" % epoch)
 		start = epoch * int(data.train.num_examples/batch_size) + 2 
