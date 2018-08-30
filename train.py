@@ -279,7 +279,7 @@ if __name__ == "__main__":
     # normalizes the sum of the values(output vector) to be 1.    
 	y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
 	# GOLANG note that we must label the infer-operation!!
-	y_pred_cls = tf.argmax(y_pred, dimension=1, name="infer")
+	y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 	#y_pred_cls = tf.argmax(y_pred, dimension=1)
 		    
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
