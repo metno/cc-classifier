@@ -314,7 +314,8 @@ if __name__ == "__main__":
 	if path is not None and tf.train.latest_checkpoint(path) is not None:
 		print("Loading %s  %s " % (path, tf.train.latest_checkpoint(path)))
 		saver.restore(session, tf.train.latest_checkpoint(path))
-		found_num = re.search(r'\d+', tf.train.latest_checkpoint(path))
+		found_num = re.search(r'\d+$', tf.train.latest_checkpoint(path))
+		print(tf.train.latest_checkpoint(path))
 		epoch = int(found_num.group(0))
 		print("Training from epoch %d" % epoch)
 		start = epoch * int(data.train.num_examples/batch_size) + 2 
