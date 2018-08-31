@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
 import argparse
 import re
 import predictor
@@ -12,7 +15,7 @@ parser.add_argument('--modeldir', type=str, help='Model dir', default='modeldata
 parser.add_argument('--epoch', type=str, help='epoch', default=888)
 args = parser.parse_args()
 
-predictor = predictor.Predictor(args.modeldir, args.epoch)
+predictor = predictor.Predictor(args.modeldir, int(args.epoch))
 
 imagedir = '/lustre/storeB/project/metproduction/products/webcams'
 
