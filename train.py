@@ -211,7 +211,8 @@ if __name__ == "__main__":
     
     # 25% of the data will automatically be used for validation
 	#validation_size = 0.35
-	validation_size = 0.30
+	#  
+	validation_size = 0.35
     
 	img_size = 128
 	num_channels = 3
@@ -268,7 +269,7 @@ if __name__ == "__main__":
             num_outputs=128,
             use_relu=True)
 
-	dropped = tf.nn.dropout(layer_fc1, 0.4)
+	dropped = tf.nn.dropout(layer_fc1, 0.5)
 	#dropped = tf.nn.dropout(layer_fc1, 0.6)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
