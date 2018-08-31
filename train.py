@@ -269,7 +269,7 @@ if __name__ == "__main__":
             use_relu=True)
 
     #dropped = tf.nn.dropout(layer_fc1, 0.5)
-	dropped = tf.nn.dropout(layer_fc1, 0.7)
+	dropped = tf.nn.dropout(layer_fc1, 0.6)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
             num_outputs=num_classes,
