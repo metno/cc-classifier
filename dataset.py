@@ -120,7 +120,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 
 	biggest =  max(label_counts, key=label_counts.get)
 	# Oversample minority classes. 
-	print("Big: %d Count: %d" % (biggest, label_counts[biggest]))  # this is 8 when using all data.
+	print("Majority: %d's Count: %d" % (biggest, label_counts[biggest]))  # this is 8 when using all data.
 
 	use_random_rotation=True
 	use_random_shift=False   # This is no good ## Not enough RAM
