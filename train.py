@@ -159,9 +159,22 @@ def train(start, num_iterations):
 
 			saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
 
+
 			# For tensorboard:			
 			train_writer.add_run_metadata(run_metadata, 'step%03d' % i)			
 			train_writer.add_summary(summary, i)
+
+			#if epoch == 10:
+			#	tf.saved_model.simple_save(session,
+			#							   "cc-predictor-model",
+			#							   inputs={"x": x, "y_true": y_true},
+			#							   outputs={"infer": y_pred_cls})
+
+			#	builder = tf.saved_model.builder.SavedModelBuilder('cc-predictor-model')
+			#	builder.add_meta_graph_and_variables(session, [tf.saved_model.tag_constants.SERVING])
+			#	builder.save()
+			#	return
+
 			
 			# Export the model for use with other languages
 			"""
