@@ -14,11 +14,11 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Exports a model tensorflow model for use by external programs')
 parser.add_argument('--modeldir', type=str, default='../models/v21', help='modeldir')
-parser.add_argument('--checkpoint', type=str, default=888, help='Checkpoint to load')
+parser.add_argument('--epoch', type=str, default=888, help='Epoch/checkpoint to load')
 args = parser.parse_args()
 
 cpdir = args.modeldir
-checkpoint = args.checkpoint
+checkpoint = int(args.epoch)
 
 
 model_name =  "cc-predictor-model"
@@ -42,7 +42,7 @@ y_pred = graph.get_tensor_by_name("y_pred:0")
 x = graph.get_tensor_by_name("x:0")
 y_true = graph.get_tensor_by_name("y_true:0")
 #y_pred_cls = graph.get_tensor_by_name("infer:0")
-y_pred_cls = tf.argmax(y_pred, dimension=1, name="infer")
+y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 
 #values, indices = tf.nn.top_k(y_pred_cls, 10)
 #table = tf.contrib.lookup.index_to_string_table_from_tensor(
@@ -56,13 +56,19 @@ tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
 tensor_info_y_pred = tf.saved_model.utils.build_tensor_info(y_pred)
 tensor_info_y_true = tf.saved_model.utils.build_tensor_info(y_true)
 tensor_info_y_pred_cls = tf.saved_model.utils.build_tensor_info(y_pred_cls)
-
+y_test_images = np.zeros((1, 9)) 
 
 
 tf.saved_model.simple_save(sess,
             "cc-predictor-model",
-            inputs={"x": x},
-            outputs={"infer": y_pred_cls, "y_pred": y_pred})
+            inputs={"x": x, "y_true": y_true},
+            outputs={"infer": y_pred_cls})
+
+
+#builder = tf.saved_model.builder.SavedModelBuilder('cc-predictor-model')
+#builder.add_meta_graph_and_variables(sess, [tf.saved_model.tag_constants.SERVING])
+#builder.save()
+
 
 """
 prediction_signature = (
