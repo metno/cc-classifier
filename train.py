@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud c
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
 parser.add_argument('--imagedir', type=str, help='The training and validation data')
 parser.add_argument('--outputdir', type=str, default='modeldata', help='where to write model snapshots')
-parser.add_argument('--inputdir', type=str, default='modeldata', help='Start training on exising model')
+parser.add_argument('--inputdir', type=str, default=None, help='Start training on exising model')
 
 parser.add_argument('--logdir', type=str, default='/tmp/tf', help='Metrics data')	
 args = parser.parse_args()
@@ -132,6 +132,7 @@ def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, val_los
 
 def train(start, num_iterations):
 	
+	run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
 	
 	for i in range(start, num_iterations):
 		x_batch, y_true_batch = data.train.next_batch(batch_size)
@@ -142,18 +143,13 @@ def train(start, num_iterations):
 						y_true: y_true_batch}
 		feed_dict_val = {x: x_valid_batch,
 						 y_true: y_valid_batch}
+				
 
-		
-		run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
 		run_metadata = tf.RunMetadata()
 		summary, _ = session.run([merged, optimizer],
-							  feed_dict_tr,
-							  options=run_options,
-							  run_metadata=run_metadata)
-		
-		# For tensorboard:
-		train_writer.add_run_metadata(run_metadata, 'step%03d' % i)			
-		train_writer.add_summary(summary, i)
+								 feed_dict_tr,
+								 options=run_options,
+								 run_metadata=run_metadata)				
 		
 		if i % int(data.train.num_examples/batch_size) == 0:
 			
@@ -162,6 +158,23 @@ def train(start, num_iterations):
 			show_progress(i, epoch, feed_dict_tr, feed_dict_val, val_loss)
 
 			saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
+
+
+			# For tensorboard:			
+			train_writer.add_run_metadata(run_metadata, 'step%03d' % i)			
+			train_writer.add_summary(summary, i)
+
+			#if epoch == 10:
+			#	tf.saved_model.simple_save(session,
+			#							   "cc-predictor-model",
+			#							   inputs={"x": x, "y_true": y_true},
+			#							   outputs={"infer": y_pred_cls})
+
+			#	builder = tf.saved_model.builder.SavedModelBuilder('cc-predictor-model')
+			#	builder.add_meta_graph_and_variables(session, [tf.saved_model.tag_constants.SERVING])
+			#	builder.save()
+			#	return
+
 			
 			# Export the model for use with other languages
 			"""
@@ -211,7 +224,8 @@ if __name__ == "__main__":
     
     # 25% of the data will automatically be used for validation
 	#validation_size = 0.35
-	validation_size = 0.30
+	#  
+	validation_size = 0.25
     
 	img_size = 128
 	num_channels = 3
@@ -268,8 +282,8 @@ if __name__ == "__main__":
             num_outputs=128,
             use_relu=True)
 
-    #dropped = tf.nn.dropout(layer_fc1, 0.5)
 	dropped = tf.nn.dropout(layer_fc1, 0.7)
+	#dropped = tf.nn.dropout(layer_fc1, 0.6)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
             num_outputs=num_classes,

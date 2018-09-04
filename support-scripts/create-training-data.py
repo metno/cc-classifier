@@ -8,14 +8,17 @@ import sys
 import re
 import random
 import os
-from tflearn.data_utils import build_hdf5_image_dataset
-import h5py
+#from tflearn.data_utils import build_hdf5_image_dataset
+#import h5py
 from globals import *
 
 # select count(*) from (select camera_id, image_timestamp, label from image_labels);
 # select count(*) from (select distinct camera_id, image_timestamp, label from image_labels);
 
-conn = sqlite3.connect('cams.db')
+
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-08-31T0605'
+camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-04T0605'
+conn = sqlite3.connect(camsdb)
 c = conn.cursor()
 
 
@@ -39,16 +42,30 @@ def getlabels():
         c = conn.cursor()
 
         dict = {}
-        count4 = 0
-        for row in  c.execute('SELECT camera_id, label,image_timestamp, username FROM image_labels where  label != 9'):
+        #count8 = 0
+
+        for row in  c.execute('SELECT camera_id, label,image_timestamp, username FROM image_labels where  label != 9 ORDER BY RANDOM()'):
             camid = row[0]
             if camid == 36: #Stupid fisheye cam at Blindern
                 continue
             label = row[1]
+            #if label == 8:
+            #    count8 = count8 + 1
+            #    if count8 > 4500:
+            #        print("Enough 8's")
+            #        continue
+                
+            """
+            if count8 % 3 == 0:
+            print("Throw away 1/3 of the 8's. It's a shame but requires too much memory")
+            continue
+            else:
+            print("Keep")
+            """
+                
+                
             image_timestamp = row[2]
             username = row[3]
-            if label == 4:
-                count4 = count4 + 1
             
             key = str(camid) + "_" + image_timestamp; 
             if not key in dict:
@@ -60,7 +77,7 @@ def getlabels():
                          'username': username,
                          'label': label}
             dict[key].append(userlabel)
-    
+            
         
         labels = [];
         for k in dict:
@@ -70,13 +87,14 @@ def getlabels():
             else:
                 labels.append(dict[k][0])
 
-        print("COUNT4: %d" % count4) 
         return labels
     
 labels = getlabels()
 
 #for row in  c.execute('SELECT distinct camera_id, label,image_timestamp FROM image_labels'):
 count = 0
+count8 = 0
+
 for l in labels:
     id = l['camid']
     label = l['label']   
@@ -108,16 +126,24 @@ for l in labels:
     if label not in samples:
         samples[label] = []
     #samples[label].append(("training_data/%s %d" % (image_file, label)))
-    samples[label].append(("%s %d" % (image_file, label)))
+    
+    
     try:
         resized_square_img = square_and_resize(img)
         height, width, channels = resized_square_img.shape
         cv2.imwrite('training_data/' + image_file, resized_square_img)
     except cv2.error as e:
         sys.stderr.write(e)
+        continue
     count = count + 1
-    #if count == 500:
+    #if count == 100:
     #    break
+    if label == 8:
+        count8 = count8 + 1
+        if count8 >= 4500:
+            print("Skipping 8. Enough already")
+            continue
+    samples[label].append(("%s %d" % (image_file, label)))
 
 smallest_sample = 1000000
 for key, value in samples.items():
@@ -130,39 +156,40 @@ print("Smallest sample:  %d (cc=%s)" % (smallest_sample, smallest_key))
 
 lines = []
 for key, value in samples.items():
-	# with the following , samples will be evenly distributed .. 
-    for i in range(0, smallest_sample):
-	# .. with this, all samples will be used. Ie mostly 8's compared to the rest
-    #for i in range(0, len(value)):
+    #for i in range(0, smallest_sample):
+    for i in range(0, len(value)):
         lines.append(value[i])
 
 random.shuffle(lines)
 
+
+save = int(len(lines) / 10)
+
 file = open("alldata.txt","w")                     
-for i in range(0, len(lines) - 400): # Save some for testing
+for i in range(0, len(lines) - save): # Save some for testing
     file.write(lines[i]  + os.linesep) 
 file.close()
 
 file = open("testdata.txt","w")                     
-for i in range(len(lines) - 400, len(lines)):
+for i in range(len(lines) - save, len(lines)):
     file.write(lines[i]  + os.linesep) 
 file.close()
 
 # For hdf5 for tflearn
-file = open("trainingdata.txt","w")                     
-for i in range (int(len(lines) * 8/float(10))):  # 80% for training data ..
-    file.write(lines[i]  + os.linesep) 
-file.close()
+#file = open("trainingdata.txt","w")                     
+#for i in range (int(len(lines) * 8/float(10))):  # 80% for training data ..
+#    file.write(lines[i]  + os.linesep) 
+#file.close()
 
-file = open("validationdata.txt","w")                     
-for k in range(i+1, len(lines)):  # .. And 20% for training data.
-    file.write(lines[k] + os.linesep) 
-file.close()
+#file = open("validationdata.txt","w")                     
+#for k in range(i+1, len(lines)):  # .. And 20% for training data.
+#    file.write(lines[k] + os.linesep) 
+#file.close()
 
-print("Building hdf5 dataset ..")
+#print("Building hdf5 dataset ..")
 # Build a HDF5 dataset for training
-build_hdf5_image_dataset('trainingdata.txt', image_shape=(128, 128), mode='file', output_path='trainingdata.h5', categorical_labels=True, normalize=True)
+#build_hdf5_image_dataset('trainingdata.txt', image_shape=(128, 128), mode='file', output_path='trainingdata.h5', categorical_labels=True, normalize=True)
 
 # Build a HDF5 dataset for validation
-build_hdf5_image_dataset('validationdata.txt', image_shape=(128, 128), mode='file', output_path='validationdata.h5', categorical_labels=True, normalize=True)
+#build_hdf5_image_dataset('validationdata.txt', image_shape=(128, 128), mode='file', output_path='validationdata.h5', categorical_labels=True, normalize=True)
 
