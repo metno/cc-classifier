@@ -153,7 +153,8 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 			
 		cc = dataset_labels[num].tolist().index(1.0)
 		augementation_factor = aug_factors[cc]
-		for i in range(0, augementation_factor):
+		augementation_factor =  augementation_factor + 8
+		for i in range(0, augementation_factor) :
 			if counts[cc] < counts[big] and use_random_rotation is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
 																							 20,
