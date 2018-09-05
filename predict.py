@@ -21,7 +21,7 @@ parser.add_argument('--epoch', type=str, help='epoch', default=888)
 args = parser.parse_args()
 
 
-predictor = predictor.Predictor(args.modeldir, args.epoch)
+predictor = predictor.Predictor(args.modeldir, int(args.epoch))
 result = predictor.predict(args.filename)
 
 if isinstance(result, (list, tuple, np.ndarray)):
