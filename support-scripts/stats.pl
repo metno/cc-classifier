@@ -95,8 +95,10 @@ printf("Equal: %.2f%%\n",  ($cnt{'equal'} / $i) * 100);
 print("\nErrors <= 2 for each class:\n");
 my $cnt = 0.0;
 for ($i=0; $i<=8; $i++) {
-    printf("$i: %0.2f%%\n",  100* ($cnt2{$i}{'smaller_than_or_equal_two'}/$lcounts{$i}));
-    $cnt += ($cnt2{$i}{'smaller_than_or_equal_two'}/$lcounts{$i});
+    if ( $lcounts{$i} ) {
+	printf("$i: %0.2f%%\n",  100* ($cnt2{$i}{'smaller_than_or_equal_two'}/$lcounts{$i}));
+	$cnt += ($cnt2{$i}{'smaller_than_or_equal_two'}/$lcounts{$i});
+    }
 }
 
 #print Dumper \%cnt2;

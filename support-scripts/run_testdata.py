@@ -8,7 +8,7 @@ import numpy as np
 cpdir = 'modeldata/v24_4500'
 
 #v21
-checkpoint = 1634
+checkpoint = 1465
 
 predictor = predictor.Predictor(cpdir, checkpoint)
 
