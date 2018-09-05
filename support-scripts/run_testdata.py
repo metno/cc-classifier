@@ -5,10 +5,10 @@ import predictor
 import numpy as np
 #import matplotlib.pyplot as plt
 
-cpdir = '../models/v21'
+cpdir = 'modeldata/v24_4500'
 
 #v21
-checkpoint = 888
+checkpoint = 1634
 
 predictor = predictor.Predictor(cpdir, checkpoint)
 

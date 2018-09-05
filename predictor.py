@@ -65,14 +65,14 @@ class Predictor(object):
 		self.sess = tf.Session()
 		# Step-1: Recreate the network graph. At this step only graph is
 		# created.        
-		#saver = tf.train.import_meta_graph(self.metafile)    
+		saver = tf.train.import_meta_graph(self.metafile)    
 		# Step-2: Now let's load the weights saved using the restore method.        
-		#saver.restore(self.sess, self.modelfile)
+		saver.restore(self.sess, self.modelfile)
 		# Accessing the default graph which we have restored
 		self.graph = tf.get_default_graph()
 
 
-		tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], "cc-predictor-model")
+		#tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], "cc-predictor-model")
 
 		
 		# Now, let's get hold of the op that we can be processed to get the
