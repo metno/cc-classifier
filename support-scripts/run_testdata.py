@@ -1,14 +1,21 @@
 #!/usr/bin/python3 -u
 import re
 import cv2
-import predictor
 import numpy as np
+import sys
+import os
+
+path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
+sys.path.append(path)
+import predictor
+
 #import matplotlib.pyplot as plt
 
-cpdir = 'modeldata/v24_4500'
+cpdir = '../models/v24_9999'
 
-#v21
-checkpoint = 1634
+#v24_9999
+#checkpoint = 926
+checkpoint =  831
 
 predictor = predictor.Predictor(cpdir, checkpoint)
 

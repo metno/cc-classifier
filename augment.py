@@ -77,7 +77,7 @@ def augment_data(dataset, dataset_labels,
 
 			if use_random_rotation:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
-															20,
+															35,
 															row_axis=0,
 															col_axis=1,
 															channel_axis=2))
@@ -85,7 +85,7 @@ def augment_data(dataset, dataset_labels,
 
 			if use_random_shear:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
-															   0.2,
+															   0.35,
 															   row_axis=0,
 															   col_axis=1,
 															   channel_axis=2))
@@ -93,8 +93,8 @@ def augment_data(dataset, dataset_labels,
 
 			if use_random_shift:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
-														 0.2,
-														 0.2,
+														 0.35,
+														 0.35,
 														 row_axis=0,
 														 col_axis=1,
 														 channel_axis=2))
