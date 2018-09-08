@@ -93,8 +93,8 @@ def augment_data(dataset, dataset_labels,
 
 			if use_random_shift:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
-														 0.35,
-														 0.35,
+														 0.45,
+														 0.0,
 														 row_axis=0,
 														 col_axis=1,
 														 channel_axis=2))
@@ -118,7 +118,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 	augmented_image_labels = []
 
 	use_random_rotation=True
-	use_random_shift=False   # This is no good ## Not enough RAM
+	use_random_shift=True   # This is no good ## Not enough RAM
 	use_random_shear=True   # Not enough RAM  
 	use_random_zoom=False
 	num_augs_enabled = 0
@@ -146,16 +146,18 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 			   label_counts[ccval],
 			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
 
-	
+	maximg = 4000
 	for num in range (0, dataset.shape[0]):
 		if num % 1000 == 0:
 			print("Augmenting %d .." % num)
 			
 		cc = dataset_labels[num].tolist().index(1.0)
+		if cc == 8:
+			continue
 		augementation_factor = aug_factors[cc]
 		augementation_factor =  augementation_factor + 8
 		for i in range(0, augementation_factor) :
-			if counts[cc] < counts[big] and use_random_rotation is True:
+			if counts[cc] < maximg and use_random_rotation is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
 																							 20,
 																							 row_axis=0,
@@ -164,7 +166,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 				augmented_image_labels.append(dataset_labels[num])
 				counts[cc] = counts[cc] + 1
 
-			if counts[cc] < counts[big] and use_random_shear is True:
+			if counts[cc] < maximg and use_random_shear is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
 																						  0.2,
 																						  row_axis=0,
@@ -175,7 +177,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 				
 			
 			
-			if counts[cc] < counts[big] and use_random_shift is True:
+			if counts[cc] < maximg and use_random_shift is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
 																						  0.2,
 																						  0.2,
