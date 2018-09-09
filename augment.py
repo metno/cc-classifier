@@ -146,7 +146,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 			   label_counts[ccval],
 			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
 
-	maximg = 4000
+	maximg = 6000
 	for num in range (0, dataset.shape[0]):
 		if num % 1000 == 0:
 			print("Augmenting %d .." % num)
