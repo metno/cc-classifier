@@ -164,10 +164,10 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 												  )
 	"""
 
-	aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts)
+	#aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts)
 	
-	images = np.concatenate([images, aug_images])
-	labels = np.concatenate([labels, aug_labels])
+	#images = np.concatenate([images, aug_images])
+	#labels = np.concatenate([labels, aug_labels])
     
 
 	return images, labels
