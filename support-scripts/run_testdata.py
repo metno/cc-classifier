@@ -11,11 +11,10 @@ import predictor
 
 #import matplotlib.pyplot as plt
 
-cpdir = '../models/v24_9999'
+cpdir = '../models/v25_all8'
 
-#v24_9999
-#checkpoint =  831
-checkpoint =  1137
+checkpoint =  162
+
 
 predictor = predictor.Predictor(cpdir, checkpoint)
 
