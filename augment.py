@@ -71,6 +71,7 @@ def augment_data(dataset, dataset_labels,
 		#print(i)
 		augementation_factor = aug_factors[i]
 		for i in range(0, augementation_factor):
+			
 			# original image:
 			#augmented_images.append(dataset[num])
 			#augmented_image_labels.append(dataset_labels[num])
@@ -180,7 +181,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 			if counts[cc] < maximg and use_random_shift is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
 																						  0.2,
-																						  0.2,
+																						  0.0,
 																						  row_axis=0,
 																						  col_axis=1,
 																						  channel_axis=2))

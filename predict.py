@@ -26,7 +26,7 @@ result = predictor.predict(args.filename)
 
 if isinstance(result, (list, tuple, np.ndarray)):
     cc_cnn = np.argmax(result[0]) # Array of probabilities
-    print(result[0])
+    #print(result[0])
 else:
     cc_cnn = result  # Error
 

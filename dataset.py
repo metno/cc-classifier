@@ -123,7 +123,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 	print("Majority: %d's Count: %d" % (biggest, label_counts[biggest]))  # this is 8 when using all data.
 
 	use_random_rotation=True
-	use_random_shift=False   # This is no good ## Not enough RAM
+	use_random_shift=True   # This is no good ## Not enough RAM
 	use_random_shear=True   # Not enough RAM  
 	use_random_zoom=False
 	num_augs_enabled = 0
@@ -164,10 +164,10 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 												  )
 	"""
 
-	#aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts)
+	aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts)
 	
-	#images = np.concatenate([images, aug_images])
-	#labels = np.concatenate([labels, aug_labels])
+	images = np.concatenate([images, aug_images])
+	labels = np.concatenate([labels, aug_labels])
     
 
 	return images, labels
