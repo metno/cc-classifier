@@ -14,8 +14,8 @@ import predictor
 cpdir = '../models/v24_9999'
 
 #v24_9999
-#checkpoint = 926
-checkpoint =  831
+#checkpoint =  831
+checkpoint =  1137
 
 predictor = predictor.Predictor(cpdir, checkpoint)
 
