@@ -32,11 +32,11 @@ my %lcounts = (0=>0, 1=>0, 2=>0, 3=>0, 4=>0, 5=>0, 6=>0, 7=>0, 8=>0, );
 
 while (<>) {
     chomp;
-    if ($_ =~ /(\S+)\s(\d)\s(\d)\s(\S+)/ ) {
+    if ($_ =~ /^(\S+)\s(\d)\s(\d)/ ) {
 	my $path = $1;
 	my $cc = int($2);
 	my $cc_cnn = int($3);
-	my $spread = $4 + 0;
+	#my $spread = $4 + 0;
 	
 	#if ( $cc_cnn < 0 || $cc_cnn != 8) { # Bias ..
 	if ( $cc_cnn < 0 ) {
@@ -66,7 +66,7 @@ while (<>) {
 		$cnt2{$cc}{'bigger_than_seven'} = $cnt2{$cc}{'bigger_than_seven'} + 1;
 	    }
 	    if ( abs($cc_cnn - $cc) > 2) {
-		print "$path HUH $cc $cc_cnn $spread\n";
+		print "$path HUH $cc $cc_cnn\n";
 		$cnt{'bigger_than_two'} = $cnt{'bigger_than_two'} + 1;
 		$cnt2{$cc}{'bigger_than_two'} = $cnt2{$cc}{'bigger_than_two'} + 1;
 	    }
