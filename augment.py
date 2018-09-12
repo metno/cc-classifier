@@ -13,7 +13,7 @@ import tensorflow as tf
 import numpy as np
 
 
-def augment_data2(dataset, dataset_labels, big, label_counts):
+def augment_data2(dataset, dataset_labels, label_counts):
 	
 	counts = label_counts.copy()
 	augmented_images = []
