@@ -38,7 +38,8 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 		if num_augs_enabled == 0:
 			continue
 		aug_factors[ccval] = round((label_counts[8]/num_augs_enabled) / label_counts[ccval])
-		
+
+		"""
 		print("dataset.load_training_data(): label %d, " 
 			  "Aug_factor: %f, "
 			  "Num images: %f, "
@@ -47,10 +48,10 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 			   aug_factors[ccval],
 			   label_counts[ccval],
 			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
-
+		"""
 	#maximg = 6000
-	maximg = {0: 4000, 1: 4000, 2: 4000, 3: 6000, 4: 6000, 5: 6000, 7: 4000, 8:1000}
-	imgcounts = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8:0}
+	maximg = {0:4000, 1: 4000, 2: 4000, 3: 4000, 4: 4000, 5: 4000, 6: 4000, 7: 4000, 8:500}
+	imgcounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
 	for num in range (0, dataset.shape[0]):
 		
 		if num % 1000 == 0:
@@ -64,7 +65,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 		for i in range(0, augementation_factor) :
 			if counts[cc] < maximg[cc] and use_random_rotation is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
-																							 20,
+																							 45,
 																							 row_axis=0,
 																							 col_axis=1,
 																							 channel_axis=2))
@@ -73,7 +74,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 
 			if counts[cc] < maximg[cc] and use_random_shear is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
-																						  0.2,
+																						  0.45,
 																						  row_axis=0,
 																						  col_axis=1,
 																						  channel_axis=2))
@@ -84,7 +85,7 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 			
 			if counts[cc] < maximg[cc] and use_random_shift is True:
 				augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
-																						  0.2,
+																						  0.45,
 																						  0.0,
 																						  row_axis=0,
 																						  col_axis=1,
@@ -94,4 +95,6 @@ def augment_data2(dataset, dataset_labels, big, label_counts):
 				
 		
 	print(imgcounts)
+	print("Images after augmentation: ")
+	print(counts)
 	return np.array(augmented_images), np.array(augmented_image_labels)
