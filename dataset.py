@@ -121,48 +121,8 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 	biggest =  max(label_counts, key=label_counts.get)
 	# Oversample minority classes. 
 	print("Majority: %d's Count: %d" % (biggest, label_counts[biggest]))  # this is 8 when using all data.
-
-	use_random_rotation=True
-	use_random_shift=True   # This is no good ## Not enough RAM
-	use_random_shear=True   # Not enough RAM  
-	use_random_zoom=False
-	num_augs_enabled = 0
-	if use_random_rotation:
-		num_augs_enabled = num_augs_enabled + 1
-	if use_random_shift:
-		num_augs_enabled = num_augs_enabled + 1
-	if use_random_shear:
-		num_augs_enabled = num_augs_enabled + 1
-	if use_random_zoom:
-		num_augs_enabled = num_augs_enabled + 1
-	print("Num augs enabled: %d" % num_augs_enabled)
-	aug_factors = dict()
-	for ccval in range(0, 9):  # cloud coverage, values in [0,8]
-		if num_augs_enabled == 0:
-			continue
-		aug_factors[ccval] = round((label_counts[biggest]/num_augs_enabled) / label_counts[ccval])
-		
-		print("dataset.load_training_data(): label %d, " 
-			  "Aug_factor: %f, "
-			  "Num images: %f, "
-			  "Num images after oversampling: %f" %
-			  (ccval,
-			   aug_factors[ccval],
-			   label_counts[ccval],
-			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
 				
 	print("Augmenting data ..")
-	"""
-	aug_images, aug_labels = augment.augment_data(images, labels,
-												  aug_factors,              # Of times to run the  
-												                            # (random) augmentation
-												  use_random_rotation=use_random_rotation,
-                                                  use_random_shift=use_random_shift, # This is no good ## Not enough RAM
-                                                  use_random_shear=use_random_shear,   # Not enough RAM  
-                                                  use_random_zoom=use_random_zoom,
-												  skip_labels = [],        # Skip augment label 8.				  
-												  )
-	"""
 
 	aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts)
 	
