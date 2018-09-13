@@ -138,6 +138,8 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
 
   validation_images = images[:validation_size]
   validation_labels = labels[:validation_size]
+  validation_images, validation_labels = shuffle(validation_images, validation_labels)  
+
   
   train_images = images[validation_size:]
   train_labels = labels[validation_size:]
@@ -147,6 +149,7 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
   train_images = np.concatenate([train_images, aug_images])
   train_labels = np.concatenate([train_labels, aug_labels])  
 
+  train_images, train_labels = shuffle(train_images, train_labels)  
   data_sets.train = DataSet(train_images, train_labels)
   data_sets.valid = DataSet(validation_images, validation_labels)
 
