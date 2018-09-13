@@ -118,7 +118,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 	images = np.array(images)
 	labels = np.array(labels)
 						    
-
+	print(label_counts)
 	return images, labels, label_counts
 
 def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
