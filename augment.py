@@ -50,7 +50,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
 		"""
 	#maximg = 6000
-	maximg = {0:4000, 1: 4000, 2: 4000, 3: 4000, 4: 4000, 5: 4000, 6: 4000, 7: 4000, 8:500}
+	maximg = {0:5000, 1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000, 6: 5000, 7: 5000, 8:500}
 	imgcounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
 	for num in range (0, dataset.shape[0]):
 		
