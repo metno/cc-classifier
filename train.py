@@ -218,8 +218,10 @@ if __name__ == "__main__":
 	set_random_seed(2)
     
     
+	#batch_size = 32
 	batch_size = 32
 
+	
 	#Prepare input data
 	#classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 	classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -285,7 +287,7 @@ if __name__ == "__main__":
             num_outputs=128,
             use_relu=True)
 
-	dropped = tf.nn.dropout(layer_fc1, 0.7)
+	dropped = tf.nn.dropout(layer_fc1, 0.65)
 	#dropped = tf.nn.dropout(layer_fc1, 0.6)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
