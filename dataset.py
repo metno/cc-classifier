@@ -117,20 +117,9 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
             
 	images = np.array(images)
 	labels = np.array(labels)
+						    
 
-	biggest =  max(label_counts, key=label_counts.get)
-	# Oversample minority classes. 
-	print("Majority: %d's Count: %d" % (biggest, label_counts[biggest]))  # this is 8 when using all data.
-				
-	print("Augmenting data ..")
-
-	aug_images, aug_labels = augment.augment_data2(images, labels, 8, label_counts)
-	
-	images = np.concatenate([images, aug_images])
-	labels = np.concatenate([labels, aug_labels])
-    
-
-	return images, labels
+	return images, labels, label_counts
 
 def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
   class DataSets(object):
@@ -138,7 +127,7 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
   data_sets = DataSets()
 
  
-  images, labels = load_training_data(labelsfile, imagedir, image_size, classes)
+  images, labels, label_counts = load_training_data(labelsfile, imagedir, image_size, classes)
   print("SIZE: %d" % (sys.getsizeof(images) / (1024*1024)))
     
   images, labels = shuffle(images, labels)  
@@ -149,14 +138,18 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
 
   validation_images = images[:validation_size]
   validation_labels = labels[:validation_size]
-  #validation_img_names = img_names[:validation_size]
-  #validation_cls = cls[:validation_size]
+  validation_images, validation_labels = shuffle(validation_images, validation_labels)  
 
+  
   train_images = images[validation_size:]
   train_labels = labels[validation_size:]
-  #train_img_names = img_names[validation_size:]
-  #train_cls = cls[validation_size:]
+  print("Augmenting data ..")
+  aug_images, aug_labels = augment.augment_data2(train_images, train_labels, label_counts)
+  
+  train_images = np.concatenate([train_images, aug_images])
+  train_labels = np.concatenate([train_labels, aug_labels])  
 
+  train_images, train_labels = shuffle(train_images, train_labels)  
   data_sets.train = DataSet(train_images, train_labels)
   data_sets.valid = DataSet(validation_images, validation_labels)
 
