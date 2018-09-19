@@ -134,7 +134,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = labelPaths
 
 	// In order to use our pool of workers we need to send
 	// them work and collect their results. We make 2
