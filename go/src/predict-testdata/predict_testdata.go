@@ -1,5 +1,7 @@
 package main
 
+// Run predictions concurrently.
+
 import (
 	"bufio"
 	"bytes"
@@ -92,8 +94,7 @@ func readLabels(path string) ([]labelPath, error) {
 // Here's the worker, of which we'll run several
 // concurrent instances. These workers will receive
 // work on the `jobs` channel and send the corresponding
-// results on `results`. We'll sleep a second per job to
-// simulate an expensive task.
+// results on `results`.
 func worker(id int, jobs <-chan labelPath, prog string, modeldir string, epoch string, results chan<- labelPath) {
 	count := 0
 	for j := range jobs {
@@ -109,8 +110,7 @@ func worker(id int, jobs <-chan labelPath, prog string, modeldir string, epoch s
 			fmt.Printf("Failed: %v\n", err)
 			fmt.Printf("Failed: %s\n", errStr)
 		}
-		//fmt.Println(parseInt(strings.TrimRight(outStr, "\n")))
-		//fmt.Println("worker", id, "finished job", j)
+
 		j.Prediction = parseInt(strings.TrimRight(outStr, "\n"))
 		results <- j
 	}
@@ -135,8 +135,7 @@ func main() {
 		log.Fatal(err)
 	}
 	_ = labelPaths
-	//fmt.Printf("%v\n", labelPaths)
-	//return
+
 	// In order to use our pool of workers we need to send
 	// them work and collect their results. We make 2
 	// channels for this.
@@ -149,7 +148,7 @@ func main() {
 		go worker(w, jobs, *predictionProg, *modelDir, *epoch, results)
 	}
 
-	// Here we send cpus `jobs` and then `close` that
+	// Here we send `len(labelPaths)` jobs and then `close` that
 	// channel to indicate that's all the work we have.
 	for j := 0; j < len(labelPaths); j++ {
 
