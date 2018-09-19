@@ -24,6 +24,9 @@ parser.add_argument('--imagedir', type=str, help='The training and validation da
 parser.add_argument('--outputdir', type=str, default='modeldata', help='where to write model snapshots')
 parser.add_argument('--inputdir', type=str, default=None, help='Start training on exising model')
 
+parser.add_argument('--epoch', type=str, default=None, help='Start training from epoch')
+
+
 parser.add_argument('--logdir', type=str, default='/tmp/tf', help='Metrics data')	
 args = parser.parse_args()
 
@@ -215,8 +218,10 @@ if __name__ == "__main__":
 	set_random_seed(2)
     
     
+	#batch_size = 32
 	batch_size = 32
 
+	
 	#Prepare input data
 	#classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 	classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -282,7 +287,7 @@ if __name__ == "__main__":
             num_outputs=128,
             use_relu=True)
 
-	dropped = tf.nn.dropout(layer_fc1, 0.7)
+	dropped = tf.nn.dropout(layer_fc1, 0.65)
 	#dropped = tf.nn.dropout(layer_fc1, 0.6)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
@@ -325,13 +330,16 @@ if __name__ == "__main__":
 	path = args.inputdir
 	start = 0
     
-	if path is not None and tf.train.latest_checkpoint(path) is not None:
-		print("Loading %s  %s " % (path, tf.train.latest_checkpoint(path)))
-		saver.restore(session, tf.train.latest_checkpoint(path))
-		found_num = re.search(r'\d+$', tf.train.latest_checkpoint(path))
-		print(tf.train.latest_checkpoint(path))
-		epoch = int(found_num.group(0))
-		print("Training from epoch %d" % epoch)
-		start = epoch * int(data.train.num_examples/batch_size) + 2 
+	#if path is not None and tf.train.latest_checkpoint(path) is not None:
+	if path is not None and args.epoch is not None:
+		print("Loading %s  %s " % (path, path + "/cc-predictor-model-" + args.epoch))
+		#saver.restore(session, tf.train.latest_checkpoint(path))
+		print("Try restoring model ..")
+		saver.restore(session, path + "/cc-predictor-model-" + args.epoch)
+		#found_num = re.search(r'\d+$', tf.train.latest_checkpoint(path))
+		#print(tf.train.latest_checkpoint(path))
+		#epoch = int(found_num.group(0))
+		print("Training from epoch %d" % int(args.epoch))
+		start = int(args.epoch)  * int(data.train.num_examples/batch_size) + 2 
 		print("StartIter: %d " % start)
 	train(start, num_iterations=10000000)
