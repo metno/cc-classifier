@@ -230,7 +230,7 @@ if __name__ == "__main__":
     # 25% of the data will automatically be used for validation
 	#validation_size = 0.35
 	#  
-	validation_size = 0.25
+	validation_size = 0.35
     
 	img_size = 128
 	num_channels = 3
@@ -287,7 +287,7 @@ if __name__ == "__main__":
             num_outputs=128,
             use_relu=True)
 
-	dropped = tf.nn.dropout(layer_fc1, 0.65)
+	dropped = tf.nn.dropout(layer_fc1, 0.8)
 	#dropped = tf.nn.dropout(layer_fc1, 0.6)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
@@ -307,7 +307,7 @@ if __name__ == "__main__":
 	#tf.summary.scalar('cross_entropy', cross_entropy)
 	
 	cost = tf.reduce_mean(cross_entropy)
-	optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
+	optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
 	correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 	
