@@ -17,7 +17,12 @@ from globals import *
 
 
 #camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-08-31T0605'
-camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-04T0605'
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-05T0605'
+
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-10T1250'
+camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-19T0822'
+
+
 conn = sqlite3.connect(camsdb)
 c = conn.cursor()
 
@@ -44,25 +49,9 @@ def getlabels():
         dict = {}
         #count8 = 0
 
-        for row in  c.execute('SELECT camera_id, label,image_timestamp, username FROM image_labels where  label != 9 ORDER BY RANDOM()'):
-            camid = row[0]
-            if camid == 36: #Stupid fisheye cam at Blindern
-                continue
+        for row in  c.execute('SELECT camera_id, label,image_timestamp, username FROM image_labels where  label != 9 AND status="" ORDER BY RANDOM()'):
+            camid = row[0]            
             label = row[1]
-            #if label == 8:
-            #    count8 = count8 + 1
-            #    if count8 > 4500:
-            #        print("Enough 8's")
-            #        continue
-                
-            """
-            if count8 % 3 == 0:
-            print("Throw away 1/3 of the 8's. It's a shame but requires too much memory")
-            continue
-            else:
-            print("Keep")
-            """
-                
                 
             image_timestamp = row[2]
             username = row[3]
@@ -138,11 +127,11 @@ for l in labels:
     count = count + 1
     #if count == 100:
     #    break
-    if label == 8:
-        count8 = count8 + 1
-        if count8 >= 4500:
-            print("Skipping 8. Enough already")
-            continue
+    #if label == 8:
+    #    count8 = count8 + 1
+    #    if count8 >= 10000:
+    #        print("Skipping 8. Enough already")
+    #        continue
     samples[label].append(("%s %d" % (image_file, label)))
 
 smallest_sample = 1000000
@@ -163,8 +152,8 @@ for key, value in samples.items():
 random.shuffle(lines)
 
 
+#save = 1000
 save = int(len(lines) / 10)
-
 file = open("alldata.txt","w")                     
 for i in range(0, len(lines) - save): # Save some for testing
     file.write(lines[i]  + os.linesep) 
