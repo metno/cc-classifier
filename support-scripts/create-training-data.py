@@ -8,19 +8,10 @@ import sys
 import re
 import random
 import os
-#from tflearn.data_utils import build_hdf5_image_dataset
-#import h5py
+
 from globals import *
 
-# select count(*) from (select camera_id, image_timestamp, label from image_labels);
-# select count(*) from (select distinct camera_id, image_timestamp, label from image_labels);
-
-
-#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-08-31T0605'
-#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-05T0605'
-
-#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-10T1250'
-camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-19T0822'
+camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-20T0605'
 
 
 conn = sqlite3.connect(camsdb)
@@ -43,13 +34,15 @@ def square_and_resize(img):
 
 
 def getlabels():
-        conn = sqlite3.connect('cams.db')
+        conn = sqlite3.connect(camsdb)
         c = conn.cursor()
-
+        c2 = conn.cursor()
+        
         dict = {}
         #count8 = 0
 
-        for row in  c.execute('SELECT camera_id, label,image_timestamp, username FROM image_labels where  label != 9 AND status="" ORDER BY RANDOM()'):
+        for row in  c.execute('SELECT il.camera_id, il.label, il.image_timestamp, il.username FROM image_labels il, webcams wc where  il.label != 9 AND wc.id=il.camera_id AND wc.status = "" ORDER BY RANDOM()'):
+            
             camid = row[0]            
             label = row[1]
                 
@@ -163,22 +156,4 @@ file = open("testdata.txt","w")
 for i in range(len(lines) - save, len(lines)):
     file.write(lines[i]  + os.linesep) 
 file.close()
-
-# For hdf5 for tflearn
-#file = open("trainingdata.txt","w")                     
-#for i in range (int(len(lines) * 8/float(10))):  # 80% for training data ..
-#    file.write(lines[i]  + os.linesep) 
-#file.close()
-
-#file = open("validationdata.txt","w")                     
-#for k in range(i+1, len(lines)):  # .. And 20% for training data.
-#    file.write(lines[k] + os.linesep) 
-#file.close()
-
-#print("Building hdf5 dataset ..")
-# Build a HDF5 dataset for training
-#build_hdf5_image_dataset('trainingdata.txt', image_shape=(128, 128), mode='file', output_path='trainingdata.h5', categorical_labels=True, normalize=True)
-
-# Build a HDF5 dataset for validation
-#build_hdf5_image_dataset('validationdata.txt', image_shape=(128, 128), mode='file', output_path='validationdata.h5', categorical_labels=True, normalize=True)
 
