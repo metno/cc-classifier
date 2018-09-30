@@ -122,38 +122,41 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 	return images, labels, label_counts
 
 def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
-  class DataSets(object):
-    pass
-  data_sets = DataSets()
+	class DataSets(object):
+		pass
+	data_sets = DataSets()
 
  
-  images, labels, label_counts = load_training_data(labelsfile, imagedir, image_size, classes)
-  print("SIZE: %d" % (sys.getsizeof(images) / (1024*1024)))
+	images, labels, label_counts = load_training_data(labelsfile, imagedir, image_size, classes)
+	print("SIZE: %d" % (sys.getsizeof(images) / (1024*1024)))
     
-  images, labels = shuffle(images, labels)  
+	images, labels = shuffle(images, labels)  
 
     
-  if isinstance(validation_size, float):
-    validation_size = int(validation_size * images.shape[0])
+	if isinstance(validation_size, float):
+		validation_size = int(validation_size * images.shape[0])
 
-  validation_images = images[:validation_size]
-  validation_labels = labels[:validation_size]
-  validation_images, validation_labels = shuffle(validation_images, validation_labels)  
+	validation_images = images[:validation_size]
+	validation_labels = labels[:validation_size]
+	validation_images, validation_labels = shuffle(validation_images, validation_labels)  
 
   
-  train_images = images[validation_size:]
-  train_labels = labels[validation_size:]
-  print("Augmenting data ..")
-  aug_images, aug_labels = augment.augment_data2(train_images, train_labels, label_counts)
-  
-  train_images = np.concatenate([train_images, aug_images])
-  train_labels = np.concatenate([train_labels, aug_labels])  
+	train_images = images[validation_size:]
+	train_labels = labels[validation_size:]
 
-  train_images, train_labels = shuffle(train_images, train_labels)  
-  data_sets.train = DataSet(train_images, train_labels)
-  data_sets.valid = DataSet(validation_images, validation_labels)
+	do_aug = True
+	if do_aug: 
+		print("Augmenting data ..")
+		aug_images, aug_labels = augment.augment_data2(train_images, train_labels, label_counts)
+	  
+		train_images = np.concatenate([train_images, aug_images])
+		train_labels = np.concatenate([train_labels, aug_labels])  
 
-  return data_sets
+	train_images, train_labels = shuffle(train_images, train_labels)  
+	data_sets.train = DataSet(train_images, train_labels)
+	data_sets.valid = DataSet(validation_images, validation_labels)
+
+	return data_sets
 
 # Test            
 if __name__ == "__main__":

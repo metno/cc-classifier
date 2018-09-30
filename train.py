@@ -227,10 +227,10 @@ if __name__ == "__main__":
 	classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
 	num_classes = len(classes)
     
-    # 25% of the data will automatically be used for validation
-	#validation_size = 0.35
-	#  
+    # Train/validation split 25% of the data will automatically be used for validation
 	validation_size = 0.35
+	#  
+	#validation_size = 0.40
     
 	img_size = 128
 	num_channels = 3
@@ -287,8 +287,8 @@ if __name__ == "__main__":
             num_outputs=128,
             use_relu=True)
 
-	dropped = tf.nn.dropout(layer_fc1, 0.8)
-	#dropped = tf.nn.dropout(layer_fc1, 0.6)
+	#dropped = tf.nn.dropout(layer_fc1, 0.8)
+	dropped = tf.nn.dropout(layer_fc1, 0.6)
 	layer_fc2 = create_fc_layer(input=dropped,
             num_inputs=128,
             num_outputs=num_classes,
@@ -300,15 +300,37 @@ if __name__ == "__main__":
 	# GOLANG note that we must label the infer-operation!!
 	y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 	#y_pred_cls = tf.argmax(y_pred, dimension=1)
-		    
-    # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
-	cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
-                                                            labels=y_true)
-	#tf.summary.scalar('cross_entropy', cross_entropy)
+
+	class_weights = tf.constant([[2943.0/28512, 2140.0/28512, 1048.0/28512,
+                921.0/28512, 796.0/28512, 1144.0/28512, 1493.0/28512,
+                4104.0/28512, 13923.0/28512]])
+
+	class_weights = tf.constant([[28512.0/2943.0, 28512.0/2140.0, 28512.0/1048.0,
+                28512.0/921.0, 28512.0/796.0, 28512.0/1144.0, 28512.0/1493.0,
+                28512.0/4104.0, 28512.0/13923.0]])
+
+
+	class_weights = tf.constant([[1-2943.0/28512.0, 1-2140.0/28512.0, 1-1048.0/28512.0,
+                1-921.0/28512.0, 1-796.0/28512.0, 1-1144.0/28512.0, 1-1493.0/28512.0,
+								  1-4104.0/28512.0, 1-13923.0/28512.0]])
 	
+	scaled_logits = tf.multiply(layer_fc2, class_weights)
+	cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=scaled_logits,
+                                                            labels=y_true)
+    # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
+	#cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
+    #                                                        labels=y_true)
+	#tf.summary.scalar('cross_entropy', cross_entropy)
+
+	
+	# deduce weights for batch samples based on their true label
+	#weights = tf.reduce_sum(class_weights * y_true, axis=1)
+	#weighted_losses = cross_entropy * weights
+	#cost = tf.reduce_mean(weighted_losses)
 	cost = tf.reduce_mean(cross_entropy)
 	optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
-	correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+	#correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+	correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
 	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 	
 	# Create a summary to monitor cost tensor
