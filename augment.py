@@ -36,20 +36,20 @@ def augment_data2(dataset, dataset_labels, label_counts):
 		if num_augs_enabled == 0:
 			continue
 		aug_factors[ccval] = round((label_counts[8]/num_augs_enabled) / label_counts[ccval])
+	print(aug_factors)
+	"""
+	print("dataset.load_training_data(): label %d, " 
+	"Aug_factor: %f, "
+	"Num images: %f, "
+	"Num images after oversampling: %f" %
+	(ccval,
+	aug_factors[ccval],
+	label_counts[ccval],
+	aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
+	"""
 
-		"""
-		print("dataset.load_training_data(): label %d, " 
-			  "Aug_factor: %f, "
-			  "Num images: %f, "
-			  "Num images after oversampling: %f" %
-			  (ccval,
-			   aug_factors[ccval],
-			   label_counts[ccval],
-			   aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
-		"""
-	#maximg = 6000
 	#maximg = {0: 3000, 1: 3000, 2: 3000, 3: 3000, 4: 3000, 5: 3000, 6: 3000, 7: 0, 8: 0}
-	maximg = {0: 3000, 1: 3000, 2: 3000, 3: 4000, 4: 4000, 5: 4000, 6: 4000, 7: 0, 8: 0}
+	maximg = {0: 8000, 1: 8000, 2: 8000, 3: 8000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 0}
 	#maximg = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}	
 	#maximg = {0: 2000, 1: 2000, 2: 2000, 3: 2000, 4: 2000, 5: 2000, 6: 2000, 7: 0, 8: 0}
 	imgcounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
@@ -63,7 +63,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 		
 		counts[cc] = counts[cc] + 1
 				
-		for i in range(0, 2) :
+		for i in range(0, aug_factors[cc] + 1) :
 			
 			
 			if use_random_rotation is True:

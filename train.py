@@ -299,34 +299,23 @@ if __name__ == "__main__":
 	y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
 	# GOLANG note that we must label the infer-operation!!
 	y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
-	#y_pred_cls = tf.argmax(y_pred, dimension=1)
-
-	class_weights = tf.constant([[2943.0/28512, 2140.0/28512, 1048.0/28512,
-                921.0/28512, 796.0/28512, 1144.0/28512, 1493.0/28512,
-                4104.0/28512, 13923.0/28512]])
-
-	class_weights = tf.constant([[28512.0/2943.0, 28512.0/2140.0, 28512.0/1048.0,
-                28512.0/921.0, 28512.0/796.0, 28512.0/1144.0, 28512.0/1493.0,
-                28512.0/4104.0, 28512.0/13923.0]])
-
-
-	class_weights = tf.constant([[1-2943.0/28512.0, 1-2140.0/28512.0, 1-1048.0/28512.0,
-                1-921.0/28512.0, 1-796.0/28512.0, 1-1144.0/28512.0, 1-1493.0/28512.0,
-								  1-4104.0/28512.0, 1-13923.0/28512.0]])
 	
-	scaled_logits = tf.multiply(layer_fc2, class_weights)
-	cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=scaled_logits,
-                                                            labels=y_true)
-    # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
-	#cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
+
+	# Class penalty
+	#class_weights = tf.constant([[1-2943.0/28512.0, 1-2140.0/28512.0, 1-1048.0/28512.0,
+    #            1-921.0/28512.0, 1-796.0/28512.0, 1-1144.0/28512.0, 1-1493.0/28512.0,
+	#							  1-4104.0/28512.0, 1-13923.0/28512.0]])
+	
+	#scaled_logits = tf.multiply(layer_fc2, class_weights)
+	#cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=scaled_logits,
     #                                                        labels=y_true)
-	#tf.summary.scalar('cross_entropy', cross_entropy)
+    # Logit is a function that maps probabilities [0, 1] to [-inf, +inf]. 
+	cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
+                                                               labels=y_true)
 
+	#scaled_err = tf.multiply(cross_entrpy, class_wheigts)		
+	#cost = tf.reduce_mean(scaled_err)
 	
-	# deduce weights for batch samples based on their true label
-	#weights = tf.reduce_sum(class_weights * y_true, axis=1)
-	#weighted_losses = cross_entropy * weights
-	#cost = tf.reduce_mean(weighted_losses)
 	cost = tf.reduce_mean(cross_entropy)
 	optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
 	#correct_prediction = tf.equal(y_pred_cls, y_true_cls)
@@ -337,12 +326,13 @@ if __name__ == "__main__":
 	tf.summary.scalar("loss", cost)
 	# Create a summary to monitor accuracy tensor
 	tf.summary.scalar("Accuracy", accuracy)
+
+	#tf.summary.scalar('cross_entropy', cross_entropy)
 	
 	# merge all summaries into a single "operation" which we can execute in a session 
 	merged = tf.summary.merge_all()
 	# create log writer object
-	#train_writer = tf.summary.FileWriter(logs_path + '/train', graph=tf.get_default_graph())
-	#test_writer  = tf.summary.FileWriter(logs_path + '/test',  graph=tf.get_default_graph())
+	
 	train_writer = tf.summary.FileWriter(logs_path + '/train', session.graph)
 	test_writer  = tf.summary.FileWriter(logs_path + '/test')
 	
