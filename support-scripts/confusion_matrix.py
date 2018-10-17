@@ -8,61 +8,80 @@ import re
 import predictor
 import numpy as np
 from pandas import *
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sn
 
 parser = argparse.ArgumentParser(description='Create a confusio namtrix')
-parser.add_argument('--labelsfile', type=str, help="A labels file containing lines like this:\n fileNNN.jpg 6")
-parser.add_argument('--modeldir', type=str, help='Model dir', default='modeldata')
-parser.add_argument('--epoch', type=str, help='epoch', default=888)
+parser.add_argument('--predictions', type=str, help=" A file with lines containine path ccobs ccpred")
 args = parser.parse_args()
 
-predictor = predictor.Predictor(args.modeldir, int(args.epoch))
-
-imagedir = '/lustre/storeB/project/metproduction/products/webcams'
-
 confusion_matrix = [
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0 ]
 ]
 
 
 count = 0
-with open(args.labelsfile, "r") as ins:
-	for line in ins:
-		myre = re.compile(r'(\S+)\s+(-?\d)$')
-		mo = myre.search(line.strip())
-		if mo is not None:
-			image_file, cc = mo.groups()
-			cc = int(cc)
-		else:
-			print("ERror No Match")
-			continue
-		myre = re.compile(r'(\d+)_(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})Z.jpg$')
-		mo = myre.search(image_file)
-		if mo is not None:
-			id, year, month, day, hour, minute = mo.groups()
-		else:
-			print("Error No Match")
-			continue
 
-		path = ("%s/%s/%s/%s/%s/%s" %(imagedir, year, month, day, id, image_file ) )
-		result = predictor.predict(path)
-		if isinstance(result, (list, tuple, np.ndarray)):
-			cc_cnn = np.argmax(result[0]) # Array of probabilities
-			print("%s %s %d " % (path, cc, cc_cnn))
-		else:
-			cc_cnn = result  # Error
-			
-		confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
-		count = count + 1
-		if count == 100:
-			break
+cccnt = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-#print(np.matrix(confusion_matrix))
-print(DataFrame(confusion_matrix))
+with open(args.predictions, "r") as ins:
+    for line in ins:
+        myre = re.compile(r'(\S+)\s+(\d) (-?\d)$')
+        mo = myre.search(line.strip())
+        if mo is not None:
+            image_file, cc, cc_cnn = mo.groups()
+            cc = int(cc)
+            cc_cnn = int(cc_cnn)
+            cccnt[cc] = cccnt[cc] + 1 
+        else:
+            print("ERror No Match")
+            continue
+
+        #if abs(cc_cnn - cc) <= 2:
+        #    confusion_matrix[cc][cc] = confusion_matrix[cc][cc] + 1
+        #else:
+        #confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
+#print(cccnt.index(min(cccnt)))
+#print(min(cccnt))
+
+cccnt2 = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
+count = 0
+with open(args.predictions, "r") as ins:
+    for line in ins:
+        myre = re.compile(r'(\S+)\s+(\d) (-?\d)$')
+        mo = myre.search(line.strip())
+        if mo is not None:
+            image_file, cc, cc_cnn = mo.groups()
+            cc = int(cc)
+            cc_cnn = int(cc_cnn)
+            cccnt2[cc] = cccnt2[cc] + 1
+            if cccnt2[cc] > min(cccnt):
+                continue
+            count = count + 1
+        else:
+            print("ERror No Match")
+            continue
+
+        #if abs(cc_cnn - cc) <= 2:
+        #    confusion_matrix[cc][cc] = confusion_matrix[cc][cc] + 1
+        #else:
+        confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
+
+
+df_cm = DataFrame(confusion_matrix)
+print(df_cm)
+plt.figure(figsize = (10,7))
+title = 'Confusion matrix Num samples in each class: %d' % min(cccnt)
+plt.title(title)
+sn.set(font_scale=1.4)#for label size
+sn.heatmap(df_cm, annot=True,fmt="d", annot_kws={"size": 16})# font size
+plt.savefig('confusion.png', dpi=400)
