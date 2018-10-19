@@ -19,9 +19,9 @@ def augment_data2(dataset, dataset_labels, label_counts):
     augmented_images = []
     augmented_image_labels = []
 
-    use_random_rotation = False
+    use_random_rotation = True
     use_random_shift = True   # This is no good ## Not enough RAM
-    use_random_shear = True
+    use_random_shear = False
     num_augs_enabled = 0
     if use_random_rotation:
         num_augs_enabled = num_augs_enabled + 1
@@ -51,10 +51,11 @@ def augment_data2(dataset, dataset_labels, label_counts):
     #maximg = {0: 3000, 1: 3000, 2: 3000, 3: 3000, 4: 3000, 5: 3000, 6: 3000, 7: 0, 8: 0}
 
     # v28 # localhost
-    # maximg = {0: 8000, 1: 8000, 2: 8000, 3: 8000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 0}
+    
 
     # Enough RAM on Floydhub
-    maximg = {0: 10000, 1: 10000, 2: 10000, 3: 10000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 0}
+    #maximg = {0: 8000, 1: 8000, 2: 8000, 3: 8000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 0}
+    maximg = {0: 6300, 1: 7300, 2: 8300, 3: 8300, 4: 8300, 5: 8300, 6: 7300, 7: 5300, 8: 0}
     #maximg = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
     # Enough RAM on neo
     #maximg = {0: 7000, 1: 5000, 2: 6000, 3: 6000, 4: 7000, 5: 7000, 6: 7000, 7: 7000, 8: 0}

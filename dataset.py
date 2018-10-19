@@ -76,6 +76,8 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
 
     label_counts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
 
+    count8 = 0
+    
     print("Loading ..")
     cnt = 0;
     with open(labelsfile, "r") as ins:
@@ -91,6 +93,13 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
             else:
                 print("Error: No match")
                 continue
+
+            if int(cc) == 8:
+                if count8 >= 5300:
+                    continue
+                count8 = count8 + 1
+                
+            
             try:
                 image = cv2.imread(imagedir + "/" + path)
             except cv2.error as e:

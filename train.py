@@ -217,8 +217,8 @@ if __name__ == "__main__":
     seed(1)
     set_random_seed(2)
 
-
-    batch_size = 32
+    batch_size = 8
+    #batch_size = 32
     #batch_size = 64
 
 
