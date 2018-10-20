@@ -20,7 +20,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     augmented_image_labels = []
 
     use_random_rotation = True
-    use_random_shift = True   # This is no good ## Not enough RAM
+    use_random_shift = False   # This is no good ## Not enough RAM
     use_random_shear = False
     num_augs_enabled = 0
     if use_random_rotation:
