@@ -27,7 +27,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     num_augs_enabled = 0
 
     if use_copy:
-        use_copy = use_copy + 1
+        num_augs_enabled = num_augs_enabled + 1
         
     if use_random_rotation:
         num_augs_enabled = num_augs_enabled + 1
@@ -78,7 +78,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
         for i in range(0, aug_factors[cc] + 1) :
             if use_copy:
-                augmented_images.append(dataset[num])
+                augmented_images.append(dataset[num].copy(dataset[num]))
             
 
             if use_random_rotation is True:
