@@ -19,9 +19,11 @@ def augment_data2(dataset, dataset_labels, label_counts):
     augmented_images = []
     augmented_image_labels = []
 
-    use_random_rotation = True
+    use_random_rotation = False
     use_random_shift = False   # This is no good ## Not enough RAM
     use_random_shear = False
+    use_copy = True
+    
     num_augs_enabled = 0
     if use_random_rotation:
         num_augs_enabled = num_augs_enabled + 1
@@ -71,7 +73,9 @@ def augment_data2(dataset, dataset_labels, label_counts):
         counts[cc] = counts[cc] + 1
 
         for i in range(0, aug_factors[cc] + 1) :
-
+            if use_copy:
+                augmented_images.append(dataset[num])
+            
 
             if use_random_rotation is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
