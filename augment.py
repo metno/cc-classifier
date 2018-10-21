@@ -76,6 +76,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
         counts[cc] = counts[cc] + 1
 
+        # NEW !! 
         for i in range(0, aug_factors[cc] + 1) :
             if use_copy:
                 augmented_images.append(dataset[num].copy(dataset[num]))
