@@ -78,42 +78,45 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
         # NEW !! 
         for i in range(0, aug_factors[cc] + 1) :
-            if use_copy:
-                augmented_images.append(dataset[num].copy(dataset[num]))
             
+            if use_copy is True:
+                print("Augumenting by copy ..")
+                augmented_images.append(dataset[num].copy(dataset[num]))
+                augmented_image_labels.append(dataset_labels[num])
+                counts[cc] = counts[cc] + 1
 
             if use_random_rotation is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
-                                                                                                                                                                         5,
-                                                                                                                                                                         row_axis=0,
-                                                                                                                                                                         col_axis=1,
-                                                                                                                                                                         channel_axis=2))
+                                                                                             5,
+                                                                                            row_axis=0,
+                                                                                             col_axis=1,
+                                                                                            channel_axis=2))
                 augmented_image_labels.append(dataset_labels[num])
                 counts[cc] = counts[cc] + 1
-
+                
             if use_random_shear is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
-                                                                                                                                                                  0.15,
-                                                                                                                                                                  row_axis=0,
-                                                                                                                                                                  col_axis=1,
-                                                                                                                                                                  channel_axis=2))
+                                                                                        0.15,
+                                                                                          row_axis=0,
+                                                                                        col_axis=1,
+                                                                                          channel_axis=2))
                 augmented_image_labels.append(dataset_labels[num])
                 counts[cc] = counts[cc] + 1
-
-
-
+            
+            
+            
             if use_random_shift is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
-                                                                                                                                                                  0.15,
-                                                                                                                                                                  0.0,
-                                                                                                                                                                  row_axis=0,
-                                                                                                                                                                  col_axis=1,
-                                                                                                                                                                  channel_axis=2,
-                                                                                                                                                                  fill_mode='wrap'))
+                                                                                        0.15,
+                                                                                        0.0,
+                                                                                        row_axis=0,
+                                                                                        col_axis=1,
+                                                                                        channel_axis=2,
+                                                                                        fill_mode='wrap'))
                 augmented_image_labels.append(dataset_labels[num])
                 counts[cc] = counts[cc] + 1
-
-
+            
+            
     print("Training imgcounts: ")
     print(imgcounts)
     print("Training images after augmentation: ")
