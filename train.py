@@ -217,8 +217,8 @@ if __name__ == "__main__":
     seed(1)
     set_random_seed(2)
 
-    #batch_size = 32
-    batch_size = 64
+    batch_size = 32
+    #batch_size = 64
 
 
     #Prepare input data
@@ -227,7 +227,7 @@ if __name__ == "__main__":
     num_classes = len(classes)
 
     # Train/validation split 25% of the data will automatically be used for validation
-    validation_size = 0.30
+    validation_size = 0.40
     #
     #validation_size = 0.40
 
