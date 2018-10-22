@@ -227,7 +227,7 @@ if __name__ == "__main__":
     num_classes = len(classes)
 
     # Train/validation split 25% of the data will automatically be used for validation
-    validation_size = 0.25
+    validation_size = 0.30
     #
     #validation_size = 0.40
 
@@ -287,7 +287,7 @@ if __name__ == "__main__":
         use_relu=True)
 
     #dropped = tf.nn.dropout(layer_fc1, 0.8)
-    dropped = tf.nn.dropout(layer_fc1, 0.6)
+    dropped = tf.nn.dropout(layer_fc1, 0.3)
     layer_fc2 = create_fc_layer(input=dropped,
         num_inputs=128,
         num_outputs=num_classes,
