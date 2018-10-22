@@ -227,7 +227,7 @@ if __name__ == "__main__":
     num_classes = len(classes)
 
     # Train/validation split 25% of the data will automatically be used for validation
-    validation_size = 0.40
+    validation_size = 0.25
     #
     #validation_size = 0.40
 
