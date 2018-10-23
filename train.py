@@ -227,7 +227,7 @@ if __name__ == "__main__":
     num_classes = len(classes)
 
     # Train/validation split 25% of the data will automatically be used for validation
-    validation_size = 0.30
+    validation_size = 0.35
     #
     #validation_size = 0.40
 
@@ -287,7 +287,7 @@ if __name__ == "__main__":
         use_relu=True)
 
     #dropped = tf.nn.dropout(layer_fc1, 0.8)
-    dropped = tf.nn.dropout(layer_fc1, 0.8)
+    dropped = tf.nn.dropout(layer_fc1, 0.9)
     layer_fc2 = create_fc_layer(input=dropped,
         num_inputs=128,
         num_outputs=num_classes,
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     #cost = tf.reduce_mean(scaled_err)
 
     cost = tf.reduce_mean(cross_entropy)
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
     # This converge fast and should be good enough for our use. Lets use this.
     # TTruning it off for testing :
     #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1

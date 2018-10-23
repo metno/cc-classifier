@@ -95,7 +95,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 continue
 
             if int(cc) == 8:
-                if count8 >= 12000:
+                if count8 >= 10000:
                     continue
                 count8 = count8 + 1
                 
