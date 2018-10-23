@@ -16,13 +16,13 @@ import numpy as np
 def salt_and_pepper_noise(image):
      row,col,ch = image.shape
      s_vs_p = 0.5
-     amount = 0.004
+     amount = 0.0004
      out = np.copy(image)
      # Salt mode
-     num_salt = np.ceil(amount * image.size * s_vs_p)
-     coords = [np.random.randint(0, i - 1, int(num_salt))
-               for i in image.shape]
-     out[tuple(coords)] = 1
+     #num_salt = np.ceil(amount * image.size * s_vs_p)
+     #coords = [np.random.randint(0, i - 1, int(num_salt))
+     #          for i in image.shape]
+     #out[tuple(coords)] = 1
 
      # Pepper mode
      num_pepper = np.ceil(amount* image.size * (1. - s_vs_p))
@@ -85,7 +85,6 @@ def augment_data2(dataset, dataset_labels, label_counts):
     #maximg = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
     # Enough RAM on neo
     #maximg = {0: 7000, 1: 5000, 2: 6000, 3: 6000, 4: 7000, 5: 7000, 6: 7000, 7: 7000, 8: 0}
-    imgcounts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
             print("Augmenting %d .." % num)
@@ -138,8 +137,6 @@ def augment_data2(dataset, dataset_labels, label_counts):
                 counts[cc] = counts[cc] + 1
 
 
-    print("Training imgcounts: ")
-    print(imgcounts)
     print("Training images after augmentation: ")
     print(counts)
     return np.array(augmented_images), np.array(augmented_image_labels)

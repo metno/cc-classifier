@@ -286,8 +286,9 @@ if __name__ == "__main__":
         num_outputs=128,
         use_relu=True)
 
+    # Argument to droupout is the probability of _keeping_ the neuron:
     #dropped = tf.nn.dropout(layer_fc1, 0.8)
-    dropped = tf.nn.dropout(layer_fc1, 0.9)
+    dropped = tf.nn.dropout(layer_fc1, 0.4)
     layer_fc2 = create_fc_layer(input=dropped,
         num_inputs=128,
         num_outputs=num_classes,
