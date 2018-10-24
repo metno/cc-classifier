@@ -217,7 +217,8 @@ if __name__ == "__main__":
     seed(1)
     set_random_seed(2)
 
-    batch_size = 32
+    batch_size = 8
+    #batch_size = 16
     #batch_size = 64
 
 
@@ -317,7 +318,7 @@ if __name__ == "__main__":
     #cost = tf.reduce_mean(scaled_err)
 
     cost = tf.reduce_mean(cross_entropy)
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
     # This converge fast and should be good enough for our use. Lets use this.
     # TTruning it off for testing :
     #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
