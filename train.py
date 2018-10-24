@@ -87,13 +87,13 @@ def create_convolutional_layer(input,
 
 
 def create_flatten_layer(layer):
-    #We know that the shape of the layer will be [batch_size img_size img_size num_channels]
+    # We know that the shape of the layer will be [batch_size img_size img_size num_channels]
     # But let's get it from the previous layer.
     layer_shape = layer.get_shape()
 
     ## Number of features will be img_height * img_width* num_channels. But we shall calculate it in place of hard-coding it.
     num_features = layer_shape[1:4].num_elements()
-
+    
     ## Now, we Flatten the layer so we shall have to reshape to num_features
     layer = tf.reshape(layer, [-1, num_features])
 
@@ -143,16 +143,16 @@ def train(start, num_iterations):
 
 
         feed_dict_tr = {x: x_batch,
-                                        y_true: y_true_batch}
+                        y_true: y_true_batch}
         feed_dict_val = {x: x_valid_batch,
-                                         y_true: y_valid_batch}
+                         y_true: y_valid_batch}
 
 
         run_metadata = tf.RunMetadata()
         summary, _ = session.run([merged, optimizer],
-                                                         feed_dict_tr,
-                                                         options=run_options,
-                                                         run_metadata=run_metadata)
+                                 feed_dict_tr,
+                                 options=run_options,
+                                 run_metadata=run_metadata)
 
         if i % int(data.train.num_examples/batch_size) == 0:
 
@@ -207,7 +207,7 @@ def train(start, num_iterations):
 
 if __name__ == "__main__":
 
-
+    os.system("rm -rf /tmp/tf ")
     retval = os.system("mkdir -p " + args.outputdir)
     if retval != 0:
         sys.stderr.write('Could not create outputdir\n')
@@ -227,7 +227,7 @@ if __name__ == "__main__":
     num_classes = len(classes)
 
     # Train/validation split 25% of the data will automatically be used for validation
-    validation_size = 0.35
+    validation_size = 0.30
     #
     #validation_size = 0.40
 
@@ -288,7 +288,7 @@ if __name__ == "__main__":
 
     # Argument to droupout is the probability of _keeping_ the neuron:
     #dropped = tf.nn.dropout(layer_fc1, 0.8)
-    dropped = tf.nn.dropout(layer_fc1, 0.4)
+    dropped = tf.nn.dropout(layer_fc1, 0.3)
     layer_fc2 = create_fc_layer(input=dropped,
         num_inputs=128,
         num_outputs=num_classes,
@@ -317,7 +317,7 @@ if __name__ == "__main__":
     #cost = tf.reduce_mean(scaled_err)
 
     cost = tf.reduce_mean(cross_entropy)
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
     # This converge fast and should be good enough for our use. Lets use this.
     # TTruning it off for testing :
     #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1

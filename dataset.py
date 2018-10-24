@@ -95,10 +95,9 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 continue
 
             if int(cc) == 8:
-                if count8 >= 10000:
+                if count8 >= 5326:
                     continue
                 count8 = count8 + 1
-                
             
             try:
                 image = cv2.imread(imagedir + "/" + path)
