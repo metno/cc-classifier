@@ -87,6 +87,12 @@ while (<>) {
     }
 }
 
+
+
+if ( $i == 0 ) {
+    die "Illegal division by zero";
+}
+
 print "Total: $i\n";
 printf("Smaller than or equal to two %.2f%%\n",  ($cnt{'smaller_than_or_equal_two'} / $i) * 100);
 printf("Smaller than or equal to one %.2f%%\n",  ($cnt{'smaller_than_or_equal_one'} / $i) * 100);
