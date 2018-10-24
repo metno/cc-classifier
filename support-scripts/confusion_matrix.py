@@ -75,7 +75,8 @@ with open(args.predictions, "r") as ins:
         #    confusion_matrix[cc][cc] = confusion_matrix[cc][cc] + 1
         #else:
         confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
-
+        if cc_cnn != cc:
+            print("%d %d"  %(cc, cc_cnn))
 
 df_cm = DataFrame(confusion_matrix)
 print(df_cm)
@@ -83,7 +84,7 @@ plt.figure(figsize = (10,7))
 title = 'Confusion matrix Num samples in each class: %d' % min(cccnt)
 plt.title(title)
 fig, ax = plt.subplots()
-ax.xaxis.set_ticks_position('top') # the rest is the same
+
 sn.set(font_scale=1.4)#for label size
 sn.heatmap(df_cm, annot=True,fmt="d", annot_kws={"size": 16})# font size
 plt.savefig('confusion.png', dpi=400)
