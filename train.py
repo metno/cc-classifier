@@ -218,12 +218,12 @@ if __name__ == "__main__":
     seed(1)
     set_random_seed(2)
 
-    #batch_size = 8
+    batch_size = 8
     #batch_size = 16
     # Current local run
     #batch_size = 10
     # floyd run 168
-    batch_size = 12
+    #batch_size = 12
 
     # floyd run 169
     #batch_size = 1
