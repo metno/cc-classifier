@@ -38,7 +38,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     augmented_image_labels = []
 
     use_random_rotation       = True
-    use_random_shift          = False
+    use_random_shift          = True
     use_random_shear          = False
     use_copy                  = False
     use_salt_and_pepper_noise = False
@@ -107,7 +107,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_rotation is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
-                                                                                             10,
+                                                                                             0.1,
                                                                                              row_axis=0,
                                                                                              col_axis=1,
                                                                                              fill_mode='reflect',
@@ -117,7 +117,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_shear is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
-                                                                                          0.15,
+                                                                                          0.01,
                                                                                           row_axis=0,
                                                                                           col_axis=1,
                                                                                           channel_axis=2))
@@ -128,7 +128,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_shift is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
-                                                                                          45,
+                                                                                          0.01,
                                                                                           0.0,
                                                                                           row_axis=0,
                                                                                           col_axis=1,
