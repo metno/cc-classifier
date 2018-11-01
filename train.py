@@ -207,7 +207,8 @@ def train(start, num_iterations):
 
 if __name__ == "__main__":
 
-    os.system("rm -rf /tmp/tf ")
+    if args.epoch is not None: # If set we continue training from where we left 
+        os.system("rm -rf /tmp/tf")
     retval = os.system("mkdir -p " + args.outputdir)
     if retval != 0:
         sys.stderr.write('Could not create outputdir\n')
@@ -217,8 +218,17 @@ if __name__ == "__main__":
     seed(1)
     set_random_seed(2)
 
-    batch_size = 8
+    #batch_size = 8
     #batch_size = 16
+    # Current local run
+    #batch_size = 10
+    # floyd run 168
+    batch_size = 12
+
+    # floyd run 169
+    #batch_size = 1
+    
+    #batch_size = 2
     #batch_size = 64
 
 
@@ -318,9 +328,9 @@ if __name__ == "__main__":
     #cost = tf.reduce_mean(scaled_err)
 
     cost = tf.reduce_mean(cross_entropy)
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-6).minimize(cost)
     # This converge fast and should be good enough for our use. Lets use this.
-    # TTruning it off for testing :
+    # turning it off for testing :
     #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
 
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)

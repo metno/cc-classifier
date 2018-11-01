@@ -38,7 +38,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     augmented_image_labels = []
 
     use_random_rotation       = True
-    use_random_shift          = False
+    use_random_shift          = True
     use_random_shear          = False
     use_copy                  = False
     use_salt_and_pepper_noise = False
@@ -84,7 +84,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     #maximg = {0: 9000, 1: 9000, 2: 9000, 3: 9000, 4: 9000, 5: 9000, 6: 9000, 7: 9000, 8: 0}
     #maximg = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
     # Enough RAM on neo
-    maximg = {0: 5300, 1: 5300, 2: 5300, 3: 5300, 4: 5300, 5: 5300, 6: 5300, 7: 0, 8: 0}
+    maximg = {0: 5807, 1: 5807, 2: 5807, 3: 5807, 4: 5807, 5: 5807, 6: 5807, 7: 0, 8: 0}
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
             print("Augmenting %d .." % num)
@@ -107,7 +107,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_rotation is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
-                                                                                             10,
+                                                                                             0.1,
                                                                                              row_axis=0,
                                                                                              col_axis=1,
                                                                                              fill_mode='reflect',
@@ -117,7 +117,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_shear is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
-                                                                                          0.15,
+                                                                                          0.01,
                                                                                           row_axis=0,
                                                                                           col_axis=1,
                                                                                           channel_axis=2))
@@ -128,7 +128,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_shift is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_shift(dataset[num],
-                                                                                          45,
+                                                                                          0.01,
                                                                                           0.0,
                                                                                           row_axis=0,
                                                                                           col_axis=1,
