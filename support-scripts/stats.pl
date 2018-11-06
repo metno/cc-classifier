@@ -94,9 +94,9 @@ if ( $i == 0 ) {
 }
 
 print "Total: $i\n";
-printf("Smaller than or equal to two %.2f%%\n",  ($cnt{'smaller_than_or_equal_two'} / $i) * 100);
-printf("Smaller than or equal to one %.2f%%\n",  ($cnt{'smaller_than_or_equal_one'} / $i) * 100);
-printf("Bigger than two %.2f%%\n",  ($cnt{'bigger_than_two'} / $i ) * 100);
+printf("Errors smaller than or equal to two %.2f%%\n",  ($cnt{'smaller_than_or_equal_two'} / $i) * 100);
+printf("Errors smaller than or equal to one %.2f%%\n",  ($cnt{'smaller_than_or_equal_one'} / $i) * 100);
+printf("Errors bigger than two %.2f%%\n",  ($cnt{'bigger_than_two'} / $i ) * 100);
 printf("Equal: %.2f%%\n",  ($cnt{'equal'} / $i) * 100);
 
 print("\nErrors <= 2 for each class:\n");

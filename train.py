@@ -93,7 +93,7 @@ def create_flatten_layer(layer):
 
     ## Number of features will be img_height * img_width* num_channels. But we shall calculate it in place of hard-coding it.
     num_features = layer_shape[1:4].num_elements()
-    
+
     ## Now, we Flatten the layer so we shall have to reshape to num_features
     layer = tf.reshape(layer, [-1, num_features])
 
@@ -207,7 +207,7 @@ def train(start, num_iterations):
 
 if __name__ == "__main__":
 
-    if args.epoch is not None: # If set we continue training from where we left 
+    if args.epoch is not None: # If set we continue training from where we left
         os.system("rm -rf /tmp/tf")
     retval = os.system("mkdir -p " + args.outputdir)
     if retval != 0:
@@ -218,16 +218,16 @@ if __name__ == "__main__":
     seed(1)
     set_random_seed(2)
 
-    #batch_size = 8
+    batch_size = 8
     #batch_size = 16
     # Current local run
     #batch_size = 10
     # floyd run 168
-    batch_size = 12
+    #batch_size = 12
 
     # floyd run 169
     #batch_size = 1
-    
+
     #batch_size = 2
     #batch_size = 64
 
@@ -324,6 +324,7 @@ if __name__ == "__main__":
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                            labels=y_true)
 
+    #cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_true * tf.log(y_pred), reduction_indices=[1]))
     #scaled_err = tf.multiply(cross_entrpy, class_wheigts)
     #cost = tf.reduce_mean(scaled_err)
 
