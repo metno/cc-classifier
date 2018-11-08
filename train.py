@@ -54,10 +54,16 @@ def create_biases(size):
 def create_convolutional_layer(input,
                                num_input_channels,
                                conv_filter_size,
-                               num_filters,
-                               weights,
-                               biases):
+                               num_filters):
 
+    # Define the weights that will be trained.
+    weights = create_weights(shape=[conv_filter_size, conv_filter_size, num_input_channels, num_filters])
+    #variable_summaries(weights)
+
+    ## Create biases using the create_biases function. These are also trained.
+    biases = create_biases(num_filters)
+    #variable_summaries(biases)
+    
     ## Creating the convolutional layer
     layer = tf.nn.conv2d(input=input,
                      filter=weights,
@@ -241,55 +247,36 @@ if __name__ == "__main__":
 
     ## labels
     y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
-    y_true_cls = tf.argmax(y_true, axis=1)
-
-    # Define the weights that will be trained.
-    weights = create_weights(shape=[conv_filter_size, conv_filter_size, num_input_channels, num_filters])
-    #variable_summaries(weights)
-
-    ## Create biases using the create_biases function. These are also trained.
-    biases = create_biases(num_filters)
-    #variable_summaries(biases)
+    y_true_cls = tf.argmax(y_true, axis=1)    
 
     layer_conv1 = create_convolutional_layer(input=x,
                                              num_input_channels=3,
                                              conv_filter_size=128,
                                              num_filters=3,
-                                             weights,
-                                             biases
     )
     layer_conv2 = create_convolutional_layer(input=layer_conv1,
                                              num_input_channels=3,
                                              conv_filter_size=64,
                                              num_filters=3,
-                                             weights,
-                                             biases
     )
 
     layer_conv3= create_convolutional_layer(input=layer_conv2,
                                         num_input_channels=3,
                                         conv_filter_size=32,
                                         num_filters=3,
-                                        weights,
-                                        biases
     )
 
     layer_conv4= create_convolutional_layer(input=layer_conv3,
                                         num_input_channels=3,
                                         conv_filter_size=16,
                                         num_filters=3,
-                                        weights,
-                                        biases
     )
 
     layer_conv5= create_convolutional_layer(input=layer_conv4,
                                         num_input_channels=3,
                                         conv_filter_size=8,
                                         num_filters=3,
-                                        weights,
-                                        biases
     )
-
 
 
     layer_flat = create_flatten_layer(layer_conv5)
@@ -300,7 +287,6 @@ if __name__ == "__main__":
                                 use_relu=True)
 
     # Argument to droupout is the probability of _keeping_ the neuron:
-    #dropped = tf.nn.dropout(layer_fc1, 0.8)
     dropped = tf.nn.dropout(layer_fc1, 0.3)
     layer_fc2 = create_fc_layer(input=dropped,
                                 num_inputs=128,
