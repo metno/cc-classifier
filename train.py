@@ -158,19 +158,7 @@ def train(start, num_iterations):
 
             # For tensorboard:
             train_writer.add_run_metadata(run_metadata, 'step%03d' % i)
-            train_writer.add_summary(summary, i)
-
-            #if epoch == 10:
-            #       tf.saved_model.simple_save(session,
-            #                                                          "cc-predictor-model",
-            #                                                          inputs={"x": x, "y_true": y_true},
-            #                                                          outputs={"infer": y_pred_cls})
-
-            #       builder = tf.saved_model.builder.SavedModelBuilder('cc-predictor-model')
-            #       builder.add_meta_graph_and_variables(session, [tf.saved_model.tag_constants.SERVING])
-            #       builder.save()
-            #       return
-
+            train_writer.add_summary(summary, i)        
 
             # Export the model for use with other languages
             """
@@ -226,7 +214,6 @@ if __name__ == "__main__":
 
 
     #Prepare input data
-    #classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     num_classes = len(classes)
 
@@ -254,7 +241,6 @@ if __name__ == "__main__":
 
     ## labels
     y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
-    #y_true_cls = tf.argmax(y_true, dimension=1)
     y_true_cls = tf.argmax(y_true, axis=1)
 
     # Define the weights that will be trained.
@@ -363,12 +349,8 @@ if __name__ == "__main__":
     #if path is not None and tf.train.latest_checkpoint(path) is not None:
     if path is not None and args.epoch is not None:
         print("Loading %s  %s " % (path, path + "/cc-predictor-model-" + args.epoch))
-        #saver.restore(session, tf.train.latest_checkpoint(path))
         print("Try restoring model ..")
-        saver.restore(session, path + "/cc-predictor-model-" + args.epoch)
-        #found_num = re.search(r'\d+$', tf.train.latest_checkpoint(path))
-        #print(tf.train.latest_checkpoint(path))
-        #epoch = int(found_num.group(0))
+        saver.restore(session, path + "/cc-predictor-model-" + args.epoch)        
         print("Training from epoch %d" % int(args.epoch))
         start = int(args.epoch)  * int(data.train.num_examples/batch_size) + 2
         print("StartIter: %d " % start)
