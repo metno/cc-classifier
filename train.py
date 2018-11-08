@@ -328,6 +328,10 @@ if __name__ == "__main__":
     #scaled_err = tf.multiply(cross_entrpy, class_wheigts)
     #cost = tf.reduce_mean(scaled_err)
 
+    # L2 regularitaion
+    #beta = 0.01
+    
+    
     cost = tf.reduce_mean(cross_entropy)
     optimizer = tf.train.AdamOptimizer(learning_rate=1e-6).minimize(cost)
     # This converge fast and should be good enough for our use. Lets use this.

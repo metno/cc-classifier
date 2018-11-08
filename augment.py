@@ -13,10 +13,11 @@ import tensorflow as tf
 import numpy as np
 
 def flip_axis(x, axis):
-    x = np.asarray(x).swapaxes(axis, 0)
-    x = x[::-1, ...]
-    x = x.swapaxes(0, axis)
-    return x
+    cp = np.copy(x)
+    cp = np.asarray(cp).swapaxes(axis, 0)
+    cp = cp[::-1, ...]
+    cp = cp.swapaxes(0, axis)
+    return cp
 
 
 def salt_and_pepper_noise(image):
@@ -44,8 +45,8 @@ def augment_data2(dataset, dataset_labels, label_counts):
     augmented_image_labels = []
 
     use_flip_axis             = True
-    use_random_rotation       = False
-    use_random_shift          = False
+    use_random_rotation       = True
+    use_random_shift          = True
     use_random_shear          = False
     use_copy                  = False
     use_salt_and_pepper_noise = False
@@ -93,7 +94,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     #maximg = {0: 9000, 1: 9000, 2: 9000, 3: 9000, 4: 9000, 5: 9000, 6: 9000, 7: 9000, 8: 0}
     #maximg = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
     # Enough RAM on neo
-    maximg = {0: 7000, 1: 7000, 2: 8000, 3: 7000, 4: 8000, 5: 7000, 6: 7000, 7: 7000, 8: 0}
+    maximg = {0: 6000, 1: 6000, 2: 6000, 3: 6000, 4: 6000, 5: 6000, 6: 6000, 7: 6000, 8: 0}
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
             print("Augmenting %d .." % num)
