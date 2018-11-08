@@ -100,13 +100,9 @@ def create_flatten_layer(layer):
 
 
 def create_fc_layer(input,
-             num_inputs,
-             num_outputs,
-             use_relu=True):
-
-    #Let's define trainable weights and biases.
-    weights = create_weights(shape=[num_inputs, num_outputs])
-    biases = create_biases(num_outputs)
+                    weights,
+                    biases,
+                    use_relu=True):
 
     # Fully connected layer takes input x and produces wx+b.Since, these are matrices,
     # we use matmul function in Tensorflow
@@ -281,17 +277,30 @@ if __name__ == "__main__":
 
     layer_flat = create_flatten_layer(layer_conv5)
 
-    layer_fc1 = create_fc_layer(input=layer_flat,
-                                num_inputs=layer_flat.get_shape()[1:4].num_elements(),
-                                num_outputs=128,
-                                use_relu=True)
+    #Let's define trainable weights and biases for the fully connected layer1.
+    num_inputs=layer_flat.get_shape()[1:4].num_elements()
+    num_outputs=128
+    fc1_weights = create_weights(shape=[num_inputs, num_outputs])
+    fc1_biases = create_biases(num_outputs)    
+    layer_fc1 = create_fc_layer(input=layer_flat,                                
+                                weights=fc1_weights,
+                                biases=fc1_biases,
+                                use_relu=True
+    )
 
+
+    #Let's define trainable weights and biases for the fully connected layer2.
+    num_inputs=128
+    num_outputs=num_classes
+    fc2_weights = create_weights(shape=[num_inputs, num_outputs])
+    fc2_biases = create_biases(num_outputs)
     # Argument to droupout is the probability of _keeping_ the neuron:
     dropped = tf.nn.dropout(layer_fc1, 0.3)
-    layer_fc2 = create_fc_layer(input=dropped,
-                                num_inputs=128,
-                                num_outputs=num_classes,
-                                use_relu=False)
+    layer_fc2 = create_fc_layer(input=dropped,                                
+                                weights=fc2_weights,
+                                biases=fc2_biases,
+                                use_relu=False
+    )
 
     # Softmax is a function that maps [-inf, +inf] to [0, 1] similar as Sigmoid. But Softmax also
     # normalizes the sum of the values(output vector) to be 1.
@@ -299,15 +308,25 @@ if __name__ == "__main__":
     # GOLANG note that we must label the infer-operation!!
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 
+    
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                                labels=y_true)
 
-    cost = tf.reduce_mean(cross_entropy)
+    use_L2_Regularization = True
+    if use_L2_Regularization: # Loss function using L2 Regularization         
+        # This is a good beta value to start with
+        beta = 0.01
+        regularizer = tf.nn.l2_loss(fc2_weights)
+        cost = tf.reduce_mean(cross_entropy + beta * regularizer)
+    else:
+        cost = tf.reduce_mean(cross_entropy)
+        
     optimizer = tf.train.AdamOptimizer(learning_rate=1e-6).minimize(cost)
+    
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
-    #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
+    # correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
 
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
