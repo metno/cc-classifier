@@ -327,23 +327,9 @@ if __name__ == "__main__":
     # GOLANG note that we must label the infer-operation!!
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 
-
-    # Class penalty
-    #class_weights = tf.constant([[1-2943.0/28512.0, 1-2140.0/28512.0, 1-1048.0/28512.0,
-    #            1-921.0/28512.0, 1-796.0/28512.0, 1-1144.0/28512.0, 1-1493.0/28512.0,
-    #                                                         1-4104.0/28512.0, 1-13923.0/28512.0]])
-
-    #scaled_logits = tf.multiply(layer_fc2, class_weights)
-    #cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=scaled_logits,
-    #                                                        labels=y_true)
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                                labels=y_true)
-
-    #cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_true * tf.log(y_pred), reduction_indices=[1]))
-    #scaled_err = tf.multiply(cross_entrpy, class_wheigts)
-    #cost = tf.reduce_mean(scaled_err)
-
 
     cost = tf.reduce_mean(cross_entropy)
     optimizer = tf.train.AdamOptimizer(learning_rate=1e-6).minimize(cost)
