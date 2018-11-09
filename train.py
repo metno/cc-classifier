@@ -294,8 +294,14 @@ if __name__ == "__main__":
     num_outputs=num_classes
     fc2_weights = create_weights(shape=[num_inputs, num_outputs])
     fc2_biases = create_biases(num_outputs)
+
     # Argument to droupout is the probability of _keeping_ the neuron:
-    dropped = tf.nn.dropout(layer_fc1, 0.3)
+    # dropped = tf.nn.dropout(layer_fc1, 0.5)
+
+    # drop dropout, try regularization only
+    dropped = tf.nn.dropout(layer_fc1, 1.0)
+
+
     layer_fc2 = create_fc_layer(input=dropped,                                
                                 weights=fc2_weights,
                                 biases=fc2_biases,
@@ -322,7 +328,7 @@ if __name__ == "__main__":
     else:
         cost = tf.reduce_mean(cross_entropy)
         
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-6).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
     
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
