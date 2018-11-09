@@ -288,7 +288,7 @@ if __name__ == "__main__":
     # Remember: Dropout should only be introduced during training, not evaluation,
     # otherwise your evaluation results would be stochastic as well. 
     # Argument to droupout is the probability of _keeping_ the neuron:
-    keep_prob = tf.placeholder_with_default(1.0, shape=())
+    keep_prob = tf.placeholder_with_default(1.0, shape=(), name='keep_prob')
     dropped = tf.nn.dropout(layer_fc1, keep_prob)
     num_inputs=128
     num_outputs=num_classes
