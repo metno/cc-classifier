@@ -17,6 +17,12 @@ import os
 # This script was initially from a cv-tricks.com tutorial
 # It has a MIT licence
 
+# Hyper params
+BATCH_SIZE        = 8
+DROPOUT_KEEP_PROB = 0.3
+LEARNING_RATE     = 1e-5
+# Train/validation split 30% of the data will automatically be used for validation
+VALIDATION_SIZE = 0.30
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -86,7 +92,7 @@ def create_convolutional_layer(input,
 
 
 def create_flatten_layer(layer):
-    # We know that the shape of the layer will be [batch_size img_size img_size num_channels]
+    # We know that the shape of the layer will be [BATCH_SIZE img_size img_size num_channels]
     # But let's get it from the previous layer.
     layer_shape = layer.get_shape()
 
@@ -133,12 +139,14 @@ def train(start, num_iterations):
     run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
 
     for i in range(start, num_iterations):
-        x_batch, y_true_batch = data.train.next_batch(batch_size)
-        x_valid_batch, y_valid_batch = data.valid.next_batch(batch_size)
+        x_batch, y_true_batch = data.train.next_batch(BATCH_SIZE)
+        x_valid_batch, y_valid_batch = data.valid.next_batch(BATCH_SIZE)
 
 
         feed_dict_tr = {x: x_batch,
-                        y_true: y_true_batch}
+                        y_true: y_true_batch,
+                        keep_prob: DROPOUT_KEEP_PROB
+        }
         feed_dict_val = {x: x_valid_batch,
                          y_true: y_valid_batch}
 
@@ -149,10 +157,10 @@ def train(start, num_iterations):
                                  options=run_options,
                                  run_metadata=run_metadata)
 
-        if i % int(data.train.num_examples/batch_size) == 0:
+        if i % int(data.train.num_examples/BATCH_SIZE) == 0:
 
             val_loss = session.run(cost, feed_dict=feed_dict_val)
-            epoch = int(i / int(data.train.num_examples/batch_size))
+            epoch = int(i / int(data.train.num_examples/BATCH_SIZE))
             show_progress(i, epoch, feed_dict_tr, feed_dict_val, val_loss)
 
             saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
@@ -197,39 +205,28 @@ if __name__ == "__main__":
         sys.stderr.write('Could not create outputdir\n')
         sys.exit(63)
 
+        print("BATCH_SIZE: %d" % BATCH_SIZE)
+        print("DROPOUT_KEEP_PROB %f" % DROPOUT_KEEP_PROB)
+        print("LEARNING_RATE: %f"% LEARNING_RATE)
+        # Train/validation split 30% of the data will automatically be used for validation
+        print("VALIDATION_SIZE: %f" %  VALIDATION_SIZE)
+
+        
     #Adding Seed so that random initialization is consistent
     seed(1)
     set_random_seed(2)
-
-    batch_size = 8
-    #batch_size = 16
-    # Current local run
-    #batch_size = 10
-    # floyd run 168
-    #batch_size = 12
-
-    # floyd run 169
-    #batch_size = 1
-
-    #batch_size = 2
-    #batch_size = 64
-
 
     #Prepare input data
     classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     num_classes = len(classes)
 
-    # Train/validation split 25% of the data will automatically be used for validation
-    validation_size = 0.30
-    #
-    #validation_size = 0.40
 
     img_size = 128
     num_channels = 3
 
     # We shall load all the training and validation images and labels into memory
     # using openCV and use that during training
-    data = dataset.read_train_sets(args.labelsfile, args.imagedir, img_size, classes, validation_size=validation_size)
+    data = dataset.read_train_sets(args.labelsfile, args.imagedir, img_size, classes, validation_size=VALIDATION_SIZE)
 
     print("Complete reading input data. ")
     print("Number of files in Training-set:\t\t{}".format(len(data.train.labels)))
@@ -288,18 +285,15 @@ if __name__ == "__main__":
                                 use_relu=True
     )
 
-
-    #Let's define trainable weights and biases for the fully connected layer2.
+    # Remember: Dropout should only be introduced during training, not evaluation,
+    # otherwise your evaluation results would be stochastic as well. 
+    # Argument to droupout is the probability of _keeping_ the neuron:
+    keep_prob = tf.placeholder_with_default(1.0, shape=())
+    dropped = tf.nn.dropout(layer_fc1, keep_prob)
     num_inputs=128
     num_outputs=num_classes
     fc2_weights = create_weights(shape=[num_inputs, num_outputs])
     fc2_biases = create_biases(num_outputs)
-
-    # Argument to droupout is the probability of _keeping_ the neuron:
-    # dropped = tf.nn.dropout(layer_fc1, 0.5)
-
-    # drop dropout, try regularization only
-    dropped = tf.nn.dropout(layer_fc1, 1.0)
 
 
     layer_fc2 = create_fc_layer(input=dropped,                                
@@ -311,15 +305,16 @@ if __name__ == "__main__":
     # Softmax is a function that maps [-inf, +inf] to [0, 1] similar as Sigmoid. But Softmax also
     # normalizes the sum of the values(output vector) to be 1.
     y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
-    # GOLANG note that we must label the infer-operation!!
-    y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
+    
 
     
+    
+
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                                labels=y_true)
-
-    use_L2_Regularization = True
+    use_L2_Regularization = False
+    # cost = loss
     if use_L2_Regularization: # Loss function using L2 Regularization         
         # This is a good beta value to start with
         beta = 0.01
@@ -328,17 +323,20 @@ if __name__ == "__main__":
     else:
         cost = tf.reduce_mean(cross_entropy)
         
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(cost)
-    
+    optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(cost)
+
+    # Note that we must label the infer-operation for use from go!!
+    y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
     # correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
-
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+
+    # Training accuracy:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     # Create a summary to monitor cost tensor
-    tf.summary.scalar("loss", cost)
+    tf.summary.scalar("Loss", cost)
     # Create a summary to monitor accuracy tensor
     tf.summary.scalar("Accuracy", accuracy)
 
@@ -363,6 +361,6 @@ if __name__ == "__main__":
         print("Try restoring model ..")
         saver.restore(session, path + "/cc-predictor-model-" + args.epoch)        
         print("Training from epoch %d" % int(args.epoch))
-        start = int(args.epoch)  * int(data.train.num_examples/batch_size) + 2
+        start = int(args.epoch)  * int(data.train.num_examples/BATCH_SIZE) + 2
         print("StartIter: %d " % start)
     train(start, num_iterations=10000000)

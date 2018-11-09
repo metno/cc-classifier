@@ -13,8 +13,8 @@ import argparse
 # for use with for instance a go-program .
 
 parser = argparse.ArgumentParser(description='Exports a model tensorflow model for use by external programs')
-parser.add_argument('--modeldir', type=str, default='../models/v21', help='modeldir')
-parser.add_argument('--epoch', type=str, default=888, help='Epoch/checkpoint to load')
+parser.add_argument('--modeldir', type=str, default=None, help='modeldir')
+parser.add_argument('--epoch', type=str, default=None, help='Epoch/checkpoint to load')
 args = parser.parse_args()
 
 cpdir = args.modeldir
