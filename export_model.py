@@ -44,13 +44,7 @@ y_true = graph.get_tensor_by_name("y_true:0")
 #y_pred_cls = graph.get_tensor_by_name("infer:0")
 y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 
-#values, indices = tf.nn.top_k(y_pred_cls, 10)
-#table = tf.contrib.lookup.index_to_string_table_from_tensor(
-#	tf.constant([str(i) for i in range(10)]))
-#prediction_classes = table.lookup(tf.to_int64(indices))
-
-#builder = tf.saved_model.builder.SavedModelBuilder("cc-predictor-model")
-#builder.add_meta_graph_and_variables(sess,["serve"])
+keep_prob = graph.get_tensor_by_name("keep_prob:0")
 
 tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
 tensor_info_y_pred = tf.saved_model.utils.build_tensor_info(y_pred)
@@ -62,7 +56,7 @@ y_test_images = np.zeros((1, 9))
 tf.saved_model.simple_save(sess,
             "cc-predictor-model",
             inputs={"x": x, "y_true": y_true},
-            outputs={"infer": y_pred_cls})
+            outputs={"infer": y_pred_cls, "keep_prob": keep_prob})
 
 
 #builder = tf.saved_model.builder.SavedModelBuilder('cc-predictor-model')

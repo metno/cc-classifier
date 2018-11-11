@@ -18,9 +18,9 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 8
-DROPOUT_KEEP_PROB = 0.3
-LEARNING_RATE     = 1e-5
+BATCH_SIZE        = 12
+DROPOUT_KEEP_PROB = 0.8
+LEARNING_RATE     = 1e-6
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 
@@ -205,11 +205,11 @@ if __name__ == "__main__":
         sys.stderr.write('Could not create outputdir\n')
         sys.exit(63)
 
-        print("BATCH_SIZE: %d" % BATCH_SIZE)
-        print("DROPOUT_KEEP_PROB %f" % DROPOUT_KEEP_PROB)
-        print("LEARNING_RATE: %f"% LEARNING_RATE)
-        # Train/validation split 30% of the data will automatically be used for validation
-        print("VALIDATION_SIZE: %f" %  VALIDATION_SIZE)
+    print("BATCH_SIZE: %d" % BATCH_SIZE)
+    print("DROPOUT_KEEP_PROB %f" % DROPOUT_KEEP_PROB)
+    print("LEARNING_RATE: %f"% LEARNING_RATE)
+    # Train/validation split 30% of the data will automatically be used for validation
+    print("VALIDATION_SIZE: %f" %  VALIDATION_SIZE)
 
         
     #Adding Seed so that random initialization is consistent
@@ -313,7 +313,7 @@ if __name__ == "__main__":
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                                labels=y_true)
-    use_L2_Regularization = False
+    use_L2_Regularization = True
     # cost = loss
     if use_L2_Regularization: # Loss function using L2 Regularization         
         # This is a good beta value to start with
