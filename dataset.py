@@ -95,7 +95,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 continue
 
             if int(cc) == 8:
-                if count8 >= 6000:
+                if count8 >= 8000:
                     continue
                 count8 = count8 + 1
             
@@ -152,7 +152,7 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
     train_images = images[validation_size:]
     train_labels = labels[validation_size:]
 
-    do_aug = True
+    do_aug = False
     if do_aug:
         print("Augmenting data ..")
         aug_images, aug_labels = augment.augment_data2(train_images, train_labels, label_counts)

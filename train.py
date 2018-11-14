@@ -18,11 +18,11 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 12
+BATCH_SIZE        = 16
 DROPOUT_KEEP_PROB = 0.8
 LEARNING_RATE     = 1e-6
 # Train/validation split 30% of the data will automatically be used for validation
-VALIDATION_SIZE = 0.30
+VALIDATION_SIZE = 0.35
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -121,22 +121,17 @@ def create_fc_layer(input,
     return layer
 
 
-def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, val_loss):
-    acc = session.run(accuracy, feed_dict=feed_dict_train)
-    #val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    summary, val_acc = session.run([merged, accuracy], feed_dict=feed_dict_validate)
-
-    # Tensorboard:
-    test_writer.add_summary(summary, iteration)
-
-    #print('Accuracy at step %s: %s' % (iteration, val_acc))
+def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, tr_acc):
+    #acc = session.run(accuracy, feed_dict=feed_dict_train)
+    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
+    val_loss = session.run(cost, feed_dict=feed_dict_validate)
     msg = "Iteration {4} Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-    print("%s %s" % (msg.format(epoch + 1, acc, val_acc, val_loss, iteration +1), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+    print("%s %s" % (msg.format(epoch + 1, tr_acc, val_acc, val_loss, iteration +1), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
 def train(start, num_iterations):
 
-    run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    #run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
 
     for i in range(start, num_iterations):
         x_batch, y_true_batch = data.train.next_batch(BATCH_SIZE)
@@ -151,24 +146,27 @@ def train(start, num_iterations):
                          y_true: y_valid_batch}
 
 
-        run_metadata = tf.RunMetadata()
-        summary, _ = session.run([merged, optimizer],
-                                 feed_dict_tr,
-                                 options=run_options,
-                                 run_metadata=run_metadata)
-
+        summary, _, tr_acc = session.run([merged, optimizer, accuracy],
+                                 feed_dict_tr)
+       
+    
+        
         if i % int(data.train.num_examples/BATCH_SIZE) == 0:
-
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
+            # For tensorboard:
+            # train_writer.add_run_metadata(run_metadata, 'step%03d' % i)
+            train_writer.add_summary(summary, i)
+            
+            summary, acc_v = session.run([merged, accuracy], feed_dict=feed_dict_val)
+            # Tensorboard:
+            test_writer.add_summary(summary, i)
+            test_writer.flush()
+            train_writer.flush()        
+    
             epoch = int(i / int(data.train.num_examples/BATCH_SIZE))
-            show_progress(i, epoch, feed_dict_tr, feed_dict_val, val_loss)
+            
+            show_progress(i, epoch, feed_dict_tr, feed_dict_val, tr_acc)
 
             saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
-
-
-            # For tensorboard:
-            train_writer.add_run_metadata(run_metadata, 'step%03d' % i)
-            train_writer.add_summary(summary, i)        
 
             # Export the model for use with other languages
             """
@@ -329,7 +327,7 @@ if __name__ == "__main__":
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
-    # correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
+    #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 
     # Training accuracy:

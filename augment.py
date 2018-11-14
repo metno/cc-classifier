@@ -94,7 +94,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     #maximg = {0: 9000, 1: 9000, 2: 9000, 3: 9000, 4: 9000, 5: 9000, 6: 9000, 7: 9000, 8: 0}
     #maximg = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
     # Enough RAM on neo
-    maximg = {0: 8000, 1: 6000, 2: 6000, 3: 8000, 4: 7000, 5: 8000, 6: 6000, 7: 6000, 8: 0}
+    maximg = {0: 8000, 1: 8000, 2: 8000, 3: 8000, 4: 8000, 5: 8000, 6: 8000, 7: 8000, 8: 0}
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
             print("Augmenting %d .." % num)
