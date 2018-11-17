@@ -122,7 +122,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_rotation is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_rotation(dataset[num],
-                                                                                             0.1,
+                                                                                             1.0,
                                                                                              row_axis=0,
                                                                                              col_axis=1,
                                                                                              fill_mode='reflect',
@@ -132,7 +132,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
 
             if use_random_shear is True:
                 augmented_images.append(tf.contrib.keras.preprocessing.image.random_shear(dataset[num],
-                                                                                          0.01,
+                                                                                          1.0,
                                                                                           row_axis=0,
                                                                                           col_axis=1,
                                                                                           channel_axis=2))
