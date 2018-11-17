@@ -311,7 +311,7 @@ if __name__ == "__main__":
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                                labels=y_true)
-    use_L2_Regularization = True
+    use_L2_Regularization = False
     # cost = loss
     if use_L2_Regularization: # Loss function using L2 Regularization         
         # This is a good beta value to start with
