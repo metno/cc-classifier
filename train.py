@@ -18,8 +18,8 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 16
-DROPOUT_KEEP_PROB = 0.3
+BATCH_SIZE        = 12
+DROPOUT_KEEP_PROB = 0.8
 LEARNING_RATE     = 1e-5
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.35
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                                labels=y_true)
-    use_L2_Regularization = False
+    use_L2_Regularization = True
     # cost = loss
     if use_L2_Regularization: # Loss function using L2 Regularization         
         # This is a good beta value to start with
