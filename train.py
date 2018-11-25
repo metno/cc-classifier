@@ -19,15 +19,14 @@ import os
 
 # Hyper params
 
-BATCH_SIZE        = 128 
-# Weird 
-#BATCH_SIZE        = 512
-
-
+BATCH_SIZE        = 12
 DROPOUT_KEEP_PROB = 0.5
-LEARNING_RATE     = 1e-4
+LEARNING_RATE     = 1e-7
 # Train/validation split 30% of the data will automatically be used for validation
-VALIDATION_SIZE = 0.35
+VALIDATION_SIZE = 0.30
+use_L2_Regularization = True
+# L2 regularization. This is a good beta value to start with ? 
+BETA = 0.01
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -130,6 +129,7 @@ def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, tr_acc)
     #acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
     val_loss = session.run(cost, feed_dict=feed_dict_validate)
+
     msg = "Iteration {4} Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
     print("%s %s" % (msg.format(epoch + 1, tr_acc, val_acc, val_loss, iteration +1), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
@@ -316,13 +316,14 @@ if __name__ == "__main__":
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
                                                                labels=y_true)
-    use_L2_Regularization = True
+
+    # validation_cost = tf.reduce_mean(cross_entropy)
+    
+    
     # cost = loss
-    if use_L2_Regularization: # Loss function using L2 Regularization         
-        # This is a good beta value to start with
-        beta = 0.01
+    if use_L2_Regularization: # Loss function using L2 Regularization                 
         regularizer = tf.nn.l2_loss(fc2_weights)
-        cost = tf.reduce_mean(cross_entropy + beta * regularizer)
+        cost = tf.reduce_mean(cross_entropy + BETA * regularizer)
     else:
         cost = tf.reduce_mean(cross_entropy)
         
@@ -335,7 +336,6 @@ if __name__ == "__main__":
     #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 
-    # Training accuracy:
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     # Create a summary to monitor cost tensor
@@ -366,4 +366,4 @@ if __name__ == "__main__":
         print("Training from epoch %d" % int(args.epoch))
         start = int(args.epoch)  * int(data.train.num_examples/BATCH_SIZE) + 2
         print("StartIter: %d " % start)
-    train(start, num_iterations=10000000)
+    train(start, num_iterations=100000000)
