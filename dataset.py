@@ -94,10 +94,10 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 print("Error: No match")
                 continue
 
-            if int(cc) == 8:
-                if count8 >= 6500:
-                    continue
-                count8 = count8 + 1
+            #if int(cc) == 8:
+            if label_counts[int(cc)] >= 3200:
+                continue
+            #count8 = count8 + 1
             
             try:
                 image = cv2.imread(imagedir + "/" + path)

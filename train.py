@@ -19,9 +19,14 @@ import os
 
 # Hyper params
 
-BATCH_SIZE        = 12
-DROPOUT_KEEP_PROB = 0.5
-LEARNING_RATE     = 1e-7
+#BATCH_SIZE        = 12
+BATCH_SIZE        = 16
+DROPOUT_KEEP_PROB = 0.8
+
+# Slow ?
+LEARNING_RATE     = 1e-6
+
+
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 use_L2_Regularization = True
@@ -164,8 +169,8 @@ def train(start, num_iterations):
             summary, acc_v = session.run([merged, accuracy], feed_dict=feed_dict_val)
             # Tensorboard:
             test_writer.add_summary(summary, i)
-            test_writer.flush()
-            train_writer.flush()        
+            #test_writer.flush()
+            #train_writer.flush()        
     
             epoch = int(i / int(data.train.num_examples/BATCH_SIZE))
             
