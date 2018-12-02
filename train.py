@@ -19,9 +19,9 @@ import os
 
 # Hyper params
 
-#BATCH_SIZE        = 12
-BATCH_SIZE        = 16
-DROPOUT_KEEP_PROB = 0.8
+BATCH_SIZE        = 12
+DROPOUT_KEEP_PROB = 0.69
+
 
 # Slow ?
 LEARNING_RATE     = 1e-6
@@ -29,7 +29,7 @@ LEARNING_RATE     = 1e-6
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
-use_L2_Regularization = True
+use_L2_Regularization = False
 # L2 regularization. This is a good beta value to start with ? 
 BETA = 0.01
 
