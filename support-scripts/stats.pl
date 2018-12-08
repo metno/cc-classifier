@@ -65,7 +65,8 @@ while (<>) {
 		$cnt{'bigger_than_seven'} = $cnt{'bigger_than_seven'} + 1;
 		$cnt2{$cc}{'bigger_than_seven'} = $cnt2{$cc}{'bigger_than_seven'} + 1;
 	    }
-	    if ( abs($cc_cnn - $cc) > 2) {		
+	    if ( abs($cc_cnn - $cc) > 2) {	
+		#print "$path HUH $cc $cc_cnn\n";	
 		$cnt{'bigger_than_two'} = $cnt{'bigger_than_two'} + 1;
 		$cnt2{$cc}{'bigger_than_two'} = $cnt2{$cc}{'bigger_than_two'} + 1;
 	    }
