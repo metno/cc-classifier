@@ -84,7 +84,8 @@ func main() {
 			model.Graph.Operation("y_true").Output(0): tensor2,
 		},
 		[]tf.Output{
-			model.Graph.Operation("y_pred").Output(0),
+			model.Graph.Operation("infer").Output(0),
+			model.Graph.Operation("keep_prob").Output(0),
 		},
 		nil,
 	)
@@ -106,7 +107,7 @@ func dummyInputTensor(size int) (*tf.Tensor, error) {
 	return tf.NewTensor(imageData)
 }
 
-// Convert the image in filename to a Tensor suitable as input to the Inception model.
+// Convert the image in filename to a Tensor suitable as input to the cc-classifier model.
 func makeTensorFromImage(filename string) (*tf.Tensor, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
