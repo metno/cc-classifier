@@ -49,7 +49,7 @@ with open(args.predictions, "r") as ins:
         #if abs(cc_cnn - cc) <= 2:
         #    confusion_matrix[cc][cc] = confusion_matrix[cc][cc] + 1
         #else:
-        #confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
+        confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
 #print(cccnt.index(min(cccnt)))
 #print(min(cccnt))
 
@@ -74,9 +74,9 @@ with open(args.predictions, "r") as ins:
         #if abs(cc_cnn - cc) <= 2:
         #    confusion_matrix[cc][cc] = confusion_matrix[cc][cc] + 1
         #else:
-        confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
-        if cc_cnn != cc:
-            print("%d %d"  %(cc, cc_cnn))
+        #confusion_matrix[cc_cnn][cc] = confusion_matrix[cc_cnn][cc] + 1
+        #if cc_cnn != cc:
+        #    print("%d %d"  %(cc, cc_cnn))
 
 df_cm = DataFrame(confusion_matrix)
 print(df_cm)
