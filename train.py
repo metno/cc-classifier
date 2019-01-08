@@ -19,14 +19,16 @@ import os
 
 # Hyper params
 
-#BATCH_SIZE        = 12
-BATCH_SIZE        = 32
-DROPOUT_KEEP_PROB = 0.5
+BATCH_SIZE        = 96
+#BATCH_SIZE        = 14
 
+DROPOUT_KEEP_PROB = 1.0
+#DROPOUT_KEEP_PROB = 0.1
+#DROPOUT_KEEP_PROB = 0.26
 
 # Slow ?
-#LEARNING_RATE     = 1e-6
-LEARNING_RATE     = 1e-6
+LEARNING_RATE     = 1e-4
+#LEARNING_RATE     = 1e-5
 
 
 # Train/validation split 30% of the data will automatically be used for validation
@@ -34,6 +36,9 @@ VALIDATION_SIZE = 0.30
 use_L2_Regularization = False
 # L2 regularization. This is a good beta value to start with ? 
 BETA = 0.001
+
+
+USE_BATCH_NORMALIZATION = True
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -68,10 +73,12 @@ def create_weights(shape):
 def create_biases(size):
     return tf.Variable(tf.constant(0.05, shape=[size]))
 
-def create_convolutional_layer(input,
-                               num_input_channels,
-                               conv_filter_size,
-                               num_filters):
+def create_convolutional_layer(
+        is_train,
+        input,
+        num_input_channels,
+        conv_filter_size,
+        num_filters):
 
     # Define the weights that will be trained.
     weights = create_weights(shape=[conv_filter_size, conv_filter_size, num_input_channels, num_filters])
@@ -86,6 +93,10 @@ def create_convolutional_layer(input,
                      filter=weights,
                      strides=[1, 1, 1, 1],
                      padding='SAME')
+    
+
+    if USE_BATCH_NORMALIZATION:
+        layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train)
 
     layer += biases
 
@@ -152,14 +163,17 @@ def train(start, num_iterations):
 
         feed_dict_tr = {x: x_batch,
                         y_true: y_true_batch,
-                        keep_prob: DROPOUT_KEEP_PROB
+                        keep_prob: DROPOUT_KEEP_PROB,
+                        is_train: True
         }
         feed_dict_val = {x: x_valid_batch,
-                         y_true: y_valid_batch}
+                         y_true: y_valid_batch,
+                         is_train: False
+        }
 
 
         summary, _, tr_acc = session.run([merged, optimizer, accuracy],
-                                 feed_dict_tr)
+                                         feed_dict_tr)
        
     
         
@@ -252,33 +266,45 @@ if __name__ == "__main__":
     y_true = tf.placeholder(tf.float32, shape=[None, num_classes], name='y_true')
     y_true_cls = tf.argmax(y_true, axis=1)    
 
-    layer_conv1 = create_convolutional_layer(input=x,
-                                             num_input_channels=3,
-                                             conv_filter_size=128,
-                                             num_filters=3,
+
+    is_train = tf.placeholder(tf.bool, name="is_training")
+    layer_conv1 = create_convolutional_layer(
+        is_train,
+        input=x,
+        num_input_channels=3,
+        conv_filter_size=128,
+        num_filters=3
     )
-    layer_conv2 = create_convolutional_layer(input=layer_conv1,
-                                             num_input_channels=3,
-                                             conv_filter_size=64,
-                                             num_filters=3,
+    layer_conv2 = create_convolutional_layer(
+        is_train,
+        input=layer_conv1,
+        num_input_channels=3,
+        conv_filter_size=64,
+        num_filters=3
     )
 
-    layer_conv3= create_convolutional_layer(input=layer_conv2,
-                                        num_input_channels=3,
-                                        conv_filter_size=32,
-                                        num_filters=3,
+    layer_conv3= create_convolutional_layer(
+        is_train,
+        input=layer_conv2,
+        num_input_channels=3,
+        conv_filter_size=32,
+        num_filters=3
     )
 
-    layer_conv4= create_convolutional_layer(input=layer_conv3,
-                                        num_input_channels=3,
-                                        conv_filter_size=16,
-                                        num_filters=3,
+    layer_conv4= create_convolutional_layer(
+        is_train,
+        input=layer_conv3,
+        num_input_channels=3,
+        conv_filter_size=16,
+        num_filters=3
     )
 
-    layer_conv5= create_convolutional_layer(input=layer_conv4,
-                                        num_input_channels=3,
-                                        conv_filter_size=8,
-                                        num_filters=3,
+    layer_conv5= create_convolutional_layer(
+        is_train,
+        input=layer_conv4,
+        num_input_channels=3,
+        conv_filter_size=8,
+        num_filters=3
     )
 
 
