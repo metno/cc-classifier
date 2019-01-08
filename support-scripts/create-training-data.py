@@ -34,6 +34,24 @@ FT_PER_METRE = 3.2808399
 # v32
 camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-11-06T0605'
 
+# v33
+# ?
+
+# v34
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-11-20T0605'
+
+#V35
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-11-22T0605'
+
+# V36
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-12-06T0605'
+
+# v37 
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-12-20T0605'
+
+# v38 
+camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2019-01-03T0605'
+
 conn = sqlite3.connect(camsdb)
 c = conn.cursor()
 
@@ -144,12 +162,12 @@ for l in labels:
         dusk = result['dusk'].astimezone(utc).replace(tzinfo=None)
         dawn = result['dawn'].astimezone(utc).replace(tzinfo=None)
 
-        if timestamp1  >  dusk + datetime.timedelta(minutes=10):
-            print("%s is later than then minutes before dusk (%s). Skipping" % (image_file, dusk))
+        if timestamp1  >  dusk + datetime.timedelta(minutes=20):
+            print("%s is later than 20 minutes before dusk (%s). Skipping" % (image_file, dusk))
             continue
 
-        if timestamp1  <  dawn + datetime.timedelta(minutes=10):
-            print("%s is earlier than then minutes before dawn (%s). Skipping" % (image_file, dawn))
+        if timestamp1  <  dawn + datetime.timedelta(minutes=20):
+            print("%s is earlier than 20 minutes after dawn (%s). Skipping" % (image_file, dawn))
             continue
         
         print("%s, Dusk: %s, Dawn: %s" % (image_file, dusk, dawn) )
@@ -157,7 +175,7 @@ for l in labels:
         if str(e) == "Sun never reaches 6 degrees below the horizon, at this location.":
             print("Midnight sun: %s" % image_file)
         elif str(e) == "Sun never reaches the horizon on this day, at this location.":
-            print("Mørketid:  s" % image_fille)
+            print("Mørketid:  %s" % image_file)
             continue
         else:
             print("%s %s" % (image_file, e))
