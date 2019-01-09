@@ -142,7 +142,7 @@ def create_fc_layer(input,
 
 
 def show_progress(iteration, epoch, acc_tr, loss_tr, acc_valid, loss_valid):
-    msg = "Iteration {4} Training Epoch {0} - Training Accuracy: {1:>6.1%}, Train loss: {2:>.3f}, Validation Accuracy: {3:>6.1%},  Val Loss: {4:.3f}"
+    msg = "Iteration {5} Training Epoch {0} - Training Accuracy: {1:>6.1%}, Train loss: {2:>.3f}, Validation Accuracy: {3:>6.1%},  Val Loss: {4:.3f}"
     print("%s %s" % (msg.format(epoch + 1, acc_tr, loss_tr, acc_valid, loss_valid, iteration ), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
