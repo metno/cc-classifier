@@ -18,27 +18,22 @@ import os
 # It has a MIT licence
 
 # Hyper params
+BATCH_SIZE        = 96
 
-BATCH_SIZE        = 32
-#BATCH_SIZE        = 14
-
-DROPOUT_KEEP_PROB = 1.0
-#DROPOUT_KEEP_PROB = 0.1
-#DROPOUT_KEEP_PROB = 0.26
+DROPOUT_KEEP_PROB = 0.5
 
 # Slow ?
 LEARNING_RATE     = 1e-4
-#LEARNING_RATE     = 1e-5
-
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
+
 use_L2_Regularization = False
 # L2 regularization. This is a good beta value to start with ? 
 BETA = 0.001
 
 # Cannot get this to work . Validation loss increases when enabled (?)
-USE_BATCH_NORMALIZATION = False
+USE_BATCH_NORMALIZATION = True
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -105,7 +100,8 @@ def create_convolutional_layer(
     ## Output of pooling is fed to Relu which is the activation function for us.    
 
     if USE_BATCH_NORMALIZATION:
-        layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train, zero_debias_moving_mean=True, decay=0.9)
+        # One can set updates_collections=None to force the updates in place, but that can have a speed penalty, especially in distributed settings.
+        layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train, zero_debias_moving_mean=True, decay=0.9, updates_collections=None )
     layer = tf.nn.relu(layer)
         
     return layer
