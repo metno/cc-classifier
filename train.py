@@ -19,7 +19,7 @@ import os
 
 # Hyper params
 
-BATCH_SIZE        = 96
+BATCH_SIZE        = 32
 #BATCH_SIZE        = 14
 
 DROPOUT_KEEP_PROB = 1.0
@@ -37,8 +37,8 @@ use_L2_Regularization = False
 # L2 regularization. This is a good beta value to start with ? 
 BETA = 0.001
 
-
-USE_BATCH_NORMALIZATION = True
+# Cannot get this to work . Validation loss increases when enabled (?)
+USE_BATCH_NORMALIZATION = False
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -93,10 +93,6 @@ def create_convolutional_layer(
                      filter=weights,
                      strides=[1, 1, 1, 1],
                      padding='SAME')
-    
-
-    if USE_BATCH_NORMALIZATION:
-        layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train)
 
     layer += biases
 
@@ -105,12 +101,14 @@ def create_convolutional_layer(
                             ksize=[1, 2, 2, 1],
                             strides=[1, 2, 2, 1],
                             padding='SAME')
-    ## Output of pooling is fed to Relu which is the activation function for us.
+    
+    ## Output of pooling is fed to Relu which is the activation function for us.    
+
+    if USE_BATCH_NORMALIZATION:
+        layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train, zero_debias_moving_mean=True, decay=0.9)
     layer = tf.nn.relu(layer)
-
+        
     return layer
-
-
 
 
 def create_flatten_layer(layer):
@@ -143,24 +141,16 @@ def create_fc_layer(input,
     return layer
 
 
-def show_progress(iteration, epoch, feed_dict_train, feed_dict_validate, tr_acc):
-    #acc = session.run(accuracy, feed_dict=feed_dict_train)
-    val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    val_loss = session.run(cost, feed_dict=feed_dict_validate)
-
-    msg = "Iteration {4} Training Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%},  Validation Loss: {3:.3f}"
-    print("%s %s" % (msg.format(epoch + 1, tr_acc, val_acc, val_loss, iteration +1), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+def show_progress(iteration, epoch, acc_tr, loss_tr, acc_valid, loss_valid):
+    msg = "Iteration {4} Training Epoch {0} - Training Accuracy: {1:>6.1%}, Train loss: {2:>.3f}, Validation Accuracy: {3:>6.1%},  Val Loss: {4:.3f}"
+    print("%s %s" % (msg.format(epoch + 1, acc_tr, loss_tr, acc_valid, loss_valid, iteration ), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
 def train(start, num_iterations):
 
-    #run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-
     for i in range(start, num_iterations):
         x_batch, y_true_batch = data.train.next_batch(BATCH_SIZE)
         x_valid_batch, y_valid_batch = data.valid.next_batch(BATCH_SIZE)
-
-
         feed_dict_tr = {x: x_batch,
                         y_true: y_true_batch,
                         keep_prob: DROPOUT_KEEP_PROB,
@@ -170,55 +160,29 @@ def train(start, num_iterations):
                          y_true: y_valid_batch,
                          is_train: False
         }
-
-
-        summary, _, tr_acc = session.run([merged, optimizer, accuracy],
-                                         feed_dict_tr)
-       
-    
+        
+        # Train:
+        session.run(optimizer, feed_dict=feed_dict_tr)
         
         if i % int(data.train.num_examples/BATCH_SIZE) == 0:
-            # For tensorboard:
-            # train_writer.add_run_metadata(run_metadata, 'step%03d' % i)
-            train_writer.add_summary(summary, i)
-            
-            summary, acc_v = session.run([merged, accuracy], feed_dict=feed_dict_val)
-            # Tensorboard:
-            test_writer.add_summary(summary, i)
-            #test_writer.flush()
-            #train_writer.flush()        
-    
             epoch = int(i / int(data.train.num_examples/BATCH_SIZE))
+
+            # Calculate training loss and training accuracy
+            loss_tr, acc_tr, summary_tr = session.run([cost, accuracy, merged],
+                                                         feed_dict=feed_dict_tr)
+            # For tensorboard:
+            train_writer.add_summary(summary_tr, i)            
+
+            # Calculate validation loss and validation accuracy
+            loss_valid, acc_valid, summary_val = session.run([cost, accuracy, merged], feed_dict=feed_dict_val)
+
+            # Tensorboard:
+            test_writer.add_summary(summary_val, i)
             
-            show_progress(i, epoch, feed_dict_tr, feed_dict_val, tr_acc)
+            show_progress(i, epoch, acc_tr, loss_tr, acc_valid, loss_valid)
 
             saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
 
-            # Export the model for use with other languages
-            """
-            builder = tf.saved_model.builder.SavedModelBuilder("cc-predictor-model-%d" % epoch)
-            tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
-            tensor_info_y = tf.saved_model.utils.build_tensor_info(y_pred)
-
-            prediction_signature = (
-                    tf.saved_model.signature_def_utils.build_signature_def(
-                            inputs={'input': tensor_info_x},
-                            outputs={'output': tensor_info_y},
-                            method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME))
-
-
-
-            builder.add_meta_graph_and_variables(
-                    session, [tf.saved_model.tag_constants.SERVING],
-                    signature_def_map={
-                            tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
-                            prediction_signature,
-                    },
-            )
-
-            builder.save(as_text=False)
-            """
-            #tf.saved_model.simple_save(session, "cc-predictor-model-%d" % i, inputs=feed_dict_tr, outputs=feed_dict_val)
 
 if __name__ == "__main__":
 
