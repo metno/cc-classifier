@@ -1,1 +1,1 @@
-floyd run --tensorboard --gpu --data metno/projects/cclabels/13/output:/input --data metno/datasets/cclabels/7:/training_data  --env tensorflow-1.9  "python3 ./train.py --labelsfile alldata.txt --imagedir /training_data --outputdir /output --logdir /output/tf"
+floyd run --tensorboard --gpu --data metno/datasets/cclabels/7:/training_data  --env tensorflow-1.9  "python3 ./train.py --labelsfile alldata.txt --imagedir /training_data --outputdir /output --logdir /output/tf"

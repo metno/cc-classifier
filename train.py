@@ -18,21 +18,22 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 96
+BATCH_SIZE        = 16
 
-DROPOUT_KEEP_PROB = 0.5
+#DROPOUT_KEEP_PROB = 0.09
+DROPOUT_KEEP_PROB = 0.2
 
 # Slow ?
-LEARNING_RATE     = 1e-4
+LEARNING_RATE     = 1e-5
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 
-use_L2_Regularization = False
-# L2 regularization. This is a good beta value to start with ? 
-BETA = 0.001
+use_L2_Regularization = True
+# L2 regularization. This is a good penalty parameter value to start with ? 
+LAMBDA = 0.01
 
-# Cannot get this to work . Validation loss increases when enabled (?)
+
 USE_BATCH_NORMALIZATION = True
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
@@ -101,7 +102,7 @@ def create_convolutional_layer(
 
     if USE_BATCH_NORMALIZATION:
         # One can set updates_collections=None to force the updates in place, but that can have a speed penalty, especially in distributed settings.
-        layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train, zero_debias_moving_mean=True, decay=0.9, updates_collections=None )
+        layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train, zero_debias_moving_mean=True, decay=0.999, updates_collections=None )
     layer = tf.nn.relu(layer)
         
     return layer
@@ -194,7 +195,7 @@ if __name__ == "__main__":
     print("LEARNING_RATE: %f" % LEARNING_RATE)
     # Train/validation split 30% of the data will automatically be used for validation
     print("VALIDATION_SIZE: %f" %  VALIDATION_SIZE)
-
+    print("L2 LAMBDA: %f" %  LAMBDA)
         
     #Adding Seed so that random initialization is consistent
     seed(1)
@@ -268,7 +269,7 @@ if __name__ == "__main__":
     )
 
 
-    layer_flat = create_flatten_layer(layer_conv5)
+    layer_flat = create_flatten_layer(layer_conv3)
 
     #Let's define trainable weights and biases for the fully connected layer1.
     num_inputs=layer_flat.get_shape()[1:4].num_elements()
@@ -301,10 +302,7 @@ if __name__ == "__main__":
     # Softmax is a function that maps [-inf, +inf] to [0, 1] similar as Sigmoid. But Softmax also
     # normalizes the sum of the values(output vector) to be 1.
     y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
-    
-
-    
-    
+        
 
     # Logit is a function that maps probabilities [0, 1] to [-inf, +inf].
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2,
@@ -316,7 +314,7 @@ if __name__ == "__main__":
     # cost = loss
     if use_L2_Regularization: # Loss function using L2 Regularization                 
         regularizer = tf.nn.l2_loss(fc2_weights)
-        cost = tf.reduce_mean(cross_entropy + BETA * regularizer)
+        cost = tf.reduce_mean(cross_entropy + LAMBDA * regularizer)
     else:
         cost = tf.reduce_mean(cross_entropy)
         
