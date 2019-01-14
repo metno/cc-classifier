@@ -18,10 +18,10 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 16
+BATCH_SIZE        = 32
 
 #DROPOUT_KEEP_PROB = 0.09
-DROPOUT_KEEP_PROB = 0.2
+DROPOUT_KEEP_PROB = 0.1
 
 # Slow ?
 LEARNING_RATE     = 1e-5
@@ -29,9 +29,9 @@ LEARNING_RATE     = 1e-5
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 
-use_L2_Regularization = True
+use_L2_Regularization = False
 # L2 regularization. This is a good penalty parameter value to start with ? 
-LAMBDA = 0.01
+LAMBDA = 0.1
 
 
 USE_BATCH_NORMALIZATION = True
