@@ -1,4 +1,7 @@
-#!/usr/bin/python3 -u
+#!/bin/sh
+''''exec python -u -- "$0" ${1+"$@"} # '''
+# vi: syntax=python
+
 
 import dataset
 import tensorflow as tf
@@ -21,7 +24,7 @@ import os
 BATCH_SIZE        = 32
 
 #DROPOUT_KEEP_PROB = 0.09
-DROPOUT_KEEP_PROB = 0.1
+DROPOUT_KEEP_PROB = 0.2
 
 # Slow ?
 LEARNING_RATE     = 1e-5
@@ -31,7 +34,7 @@ VALIDATION_SIZE = 0.30
 
 use_L2_Regularization = False
 # L2 regularization. This is a good penalty parameter value to start with ? 
-LAMBDA = 0.1
+LAMBDA = 10.0
 
 
 USE_BATCH_NORMALIZATION = True
