@@ -1,4 +1,10 @@
-#!/usr/bin/python3 -u
+#!/usr/bin/env python3
+
+#!/bin/sh
+''''exec python -u -- "$0" ${1+"$@"} # '''
+# vi: syntax=python
+
+
 
 import tensorflow as tf
 import numpy as np

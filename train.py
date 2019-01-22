@@ -21,20 +21,20 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 32
+BATCH_SIZE        = 64
 
 #DROPOUT_KEEP_PROB = 0.09
-DROPOUT_KEEP_PROB = 0.2
+DROPOUT_KEEP_PROB = 0.5
 
 # Slow ?
-LEARNING_RATE     = 1e-5
+LEARNING_RATE     = 1e-6
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 
 use_L2_Regularization = False
 # L2 regularization. This is a good penalty parameter value to start with ? 
-LAMBDA = 10.0
+LAMBDA = 0.1
 
 
 USE_BATCH_NORMALIZATION = True
@@ -327,8 +327,8 @@ if __name__ == "__main__":
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
-    #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
-    correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+    correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
+    #correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 

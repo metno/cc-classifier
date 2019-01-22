@@ -100,15 +100,16 @@ func worker(id int, jobs <-chan labelPath, prog string, modeldir string, epoch s
 	for j := range jobs {
 
 		count++
-		//fmt.Println("worker", id, "started  job", j, "Path:", j.Path)
+		///fmt.Println("worker", id, "started  job", j, "Path:", j.Path)
+		//os.Setenv("CUDA_VISIBLE_DEVICES", "")
 		outStr, errStr, err := execCommand(prog,
 			"--modeldir", modeldir,
 			"--epoch", epoch,
 			"--filename", j.Path)
 
 		if err != nil {
-			fmt.Printf("Failed: %v\n", err)
-			fmt.Printf("Failed: %s\n", errStr)
+			fmt.Printf("predict-testdata: Failed: %v\n", err)
+			fmt.Printf("predict-testdata: Failed: %s\n", errStr)
 		}
 
 		j.Prediction = parseInt(strings.TrimRight(outStr, "\n"))
@@ -128,7 +129,9 @@ func main() {
 	}
 
 	cpus := runtime.NumCPU()
-	runtime.GOMAXPROCS(cpus)
+	cpus = 15
+	//runtime.GOMAXPROCS(cpus)
+
 
 	labelPaths, err := readLabels(*labelFile)
 	if err != nil {

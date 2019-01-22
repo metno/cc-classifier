@@ -65,12 +65,12 @@ class Predictor(object):
         self.sess = tf.Session()
         # Step-1: Recreate the network graph. At this step only graph is
         # created.
-        #saver = tf.train.import_meta_graph(self.metafile)
+        saver = tf.train.import_meta_graph(self.metafile)
         # Step-2: Now let's load the weights saved using the restore method.
-        #saver.restore(self.sess, self.modelfile)
+        saver.restore(self.sess, self.modelfile)
 
 
-        tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], "cc-predictor-model")
+        #tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], "cc-predictor-model")
         # Accessing the default graph which we have restored
         self.graph = tf.get_default_graph()
         
@@ -86,6 +86,7 @@ class Predictor(object):
         self.y_true = self.graph.get_tensor_by_name("y_true:0")
         self.y_test_images = np.zeros((1, 9))
         self.keep_prob = self.graph.get_tensor_by_name("keep_prob:0")
+        self.is_training = self.graph.get_tensor_by_name("is_training:0")
 
         # The input to the network is of shape
         # [None image_size image_size num_channels].
@@ -95,7 +96,7 @@ class Predictor(object):
 
         ## Creating the feed_dict that is required to be fed to calculate
         # y_pred
-        feed_dict_testing = {self.x: x_batch, self.y_true: self.y_test_images, self.keep_prob: 1.0}
+        feed_dict_testing = {self.x: x_batch, self.y_true: self.y_test_images, self.keep_prob: 1.0, self.is_training: False}
         result = self.sess.run(self.y_pred, feed_dict=feed_dict_testing)
         self.sess.close()
         self.sess = None
