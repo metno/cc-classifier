@@ -21,23 +21,24 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 64
+BATCH_SIZE        = 32
 
 #DROPOUT_KEEP_PROB = 0.09
-DROPOUT_KEEP_PROB = 0.5
+DROPOUT_KEEP_PROB = 0.1
 
 # Slow ?
-LEARNING_RATE     = 1e-6
+LEARNING_RATE     = 1e-5
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 
 use_L2_Regularization = False
+
 # L2 regularization. This is a good penalty parameter value to start with ? 
 LAMBDA = 0.1
 
 
-USE_BATCH_NORMALIZATION = True
+USE_BATCH_NORMALIZATION = False
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -221,7 +222,10 @@ if __name__ == "__main__":
     print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
     print("data.train.num_examples: %d" % data.train.num_examples)
 
-    session = tf.Session()
+    session_conf = tf.ConfigProto(
+	intra_op_parallelism_threads=5,
+	inter_op_parallelism_threads=5)
+    session = tf.Session(config=session_conf)
 
     # GOLANG note that we must label the input-tensor! (name='x')
     x = tf.placeholder(tf.float32, shape=[None, img_size,img_size,num_channels], name='x')
