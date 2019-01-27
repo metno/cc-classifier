@@ -29,6 +29,9 @@ metafile = "%s-%d.meta" % (checkpoint_file, checkpoint)
 
 sess = tf.Session()
 sess.run([tf.local_variables_initializer(), tf.tables_initializer()])
+#sess.run(tf.initialize_all_variables())
+#sess.run(tf.initialize_local_variables())
+
 
 # Step-1: Recreate the network graph. At this step only graph is
 # created.        

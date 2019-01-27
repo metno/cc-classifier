@@ -331,8 +331,8 @@ if __name__ == "__main__":
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
-    correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
-    #correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+    #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
+    correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
