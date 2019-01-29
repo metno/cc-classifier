@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -u
+#!/usr/bin/env python3
 
 from datetime import date, timedelta
 import datetime
@@ -17,25 +17,8 @@ utc = pytz.utc
 # From A. Mariano, MacOS units(1), 1993.
 FT_PER_METRE = 3.2808399
 
-
 # v28
 #camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-09-20T0605'
-
-# v29
-#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-10-03T0605'
-
-
-# V30
-#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-10-12T0605'
-
-# v31 small
-#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-10-25T0605'
-
-# v32
-camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-11-06T0605'
-
-# v33
-# ?
 
 # v34
 #camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-11-20T0605'
@@ -50,7 +33,18 @@ camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.201
 #camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2018-12-20T0605'
 
 # v38 
-camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2019-01-03T0605'
+#camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2019-01-03T0605'
+
+# v39
+# camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2019-01-22T0605'
+
+# v40
+# camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2019-01-25T1501'
+
+# v41
+camsdb = '/lustre/storeB/project/metproduction/static_data/camsatrec/cams.db.2019-01-28T1501'
+
+
 
 conn = sqlite3.connect(camsdb)
 c = conn.cursor()
@@ -126,6 +120,10 @@ for l in labels:
     lat = float(l['lat'])
     lon = float(l['lon'])
 
+    
+    #if image_timestamp != '20180213T1600Z':
+    #    continue
+    
     myre = re.compile(r'(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})Z$')
     mo = myre.search(image_timestamp)
     if mo is not None:
@@ -143,9 +141,16 @@ for l in labels:
 
     image_file = ("%d_%s%s%sT%s%sZ.jpg" %(id, year, month, day, hour, minute))
     #print(image_file)
+    br = get_mean_brightness(img)
+    # Skip images probably taken at night    
+    if br < BRIGHTNESS_THRESHOLD: # Should mostly not reach here due to the dusk/dawn testing above
+        print("Skipping %s. Probably at night %d (%f)" % (image_path, label, br))
+        continue
     
     timestamp1 = datetime.datetime.strptime( image_timestamp, "%Y%m%dT%H%MZ" )
-    #print(timestamp1)
+    timestamp2 = datetime.datetime.strptime( image_timestamp, "%Y%m%dT%H%MZ" )
+    timestamp2 = timestamp2.replace(minute=0, hour=12, second=0, microsecond=0)
+    #print(timestamp2)
     #print("Lat: %f, Lon: %f" %(lat/100.0, lon/100.0))
     loc = astral.Location(info=("",
                             "",
@@ -155,25 +160,26 @@ for l in labels:
                             157/FT_PER_METRE))
 
     try:
-        result = loc.sun(date=timestamp1)
+        result = loc.sun(date=timestamp2)
         #for k in ["dawn", "sunrise", "noon", "sunset", "dusk"]:
         #    print("%7s %s" % (k, result[k].astimezone(utc).replace(tzinfo=None)))
 
+        # Skumring
         dusk = result['dusk'].astimezone(utc).replace(tzinfo=None)
-        dawn = result['dawn'].astimezone(utc).replace(tzinfo=None)
-
-        if timestamp1  >  dusk + datetime.timedelta(minutes=20):
-            print("%s is later than 20 minutes before dusk (%s). Skipping" % (image_file, dusk))
+        if timestamp1  >  dusk - datetime.timedelta(minutes=35):
+            print("%s is later than 35 minutes before dusk (%s). Skipping" % (image_file, dusk))
             continue
-
-        if timestamp1  <  dawn + datetime.timedelta(minutes=20):
-            print("%s is earlier than 20 minutes after dawn (%s). Skipping" % (image_file, dawn))
+        
+        # Morgengry
+        dawn = result['dawn'].astimezone(utc).replace(tzinfo=None)
+        if timestamp1  <  dawn + datetime.timedelta(minutes=35):
+            print("%s is earlier than 35 minutes after dawn (%s). Skipping" % (image_file, dawn))
             continue
         
         print("%s, Dusk: %s, Dawn: %s" % (image_file, dusk, dawn) )
     except astral.AstralError as e:
         if str(e) == "Sun never reaches 6 degrees below the horizon, at this location.":
-            print("Midnight sun: %s" % image_file)
+            print("Midnight sun, Sun never reaches 6 degrees below the horizon, at this location.: %s (%f %f br: %f)" % (image_file, lat/100.0, lon/100.0, br))
         elif str(e) == "Sun never reaches the horizon on this day, at this location.":
             print("Mørketid:  %s" % image_file)
             continue
@@ -182,13 +188,6 @@ for l in labels:
     except Exception as e2:
         print("%s %s" % (image_file, e2))
         continue
-
-    # Skip images probably taken at night
-    br = get_mean_brightness(img)
-    if br < BRIGHTNESS_THRESHOLD: # Should mostly not reach here due to the dusk/dawn testing above
-        print("Skipping %s. Probably at night %d (%f)" % (image_path, label, br))
-        continue
-
     
     if label not in samples:
         samples[label] = []
@@ -213,6 +212,7 @@ for l in labels:
     samples[label].append(("%s %d" % (image_file, label)))
 
 smallest_sample = 1000000
+smallest_key = -1
 for key, value in samples.items():
     print("%s => %d" % (key, len(value)))
     if len(value) < smallest_sample:
