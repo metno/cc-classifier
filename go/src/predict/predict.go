@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	imagefile := flag.String("image", "", "Path of a JPEG-image to extract labels for")
+	imagefile := flag.String("image", "", "Path of a JPEG-image to extract label for")
 	flag.Parse()
 	if *imagefile == "" {
 		flag.Usage()
@@ -39,7 +39,7 @@ func main() {
 		}
 	*/
 
-	tensor2, _ := tf.NewTensor([1][9]float32{})
+	tensorr, _ := tf.NewTensor([1][9]float32{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,43 +49,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	/*
-		output := tf.Output{
-			Op:    model.Graph.Operation("x"),
-			Index: 0,
-		}
-		feeds := map[tf.Output]*tf.Tensor{
-			output: tensor,
-			model.Graph.Operation("y_true").Output(0): tensor2,
-		}
-		fetches := []tf.Output{
-			{
-				Op:    model.Graph.Operation("y_pred"),
-				Index: 0,
-			},
-		}
-		result, err := model.Session.Run(
-			feeds,
-			fetches,
-			nil,
-		)
-		fmt.Printf("%#v\n", tensor2)
-		if err != nil {
-			fmt.Println(2, err)
-			return
-		}
-
-		fmt.Println(result[0].Value())
-	*/
-
 	result, runErr := model.Session.Run(
 		map[tf.Output]*tf.Tensor{
 			model.Graph.Operation("x").Output(0):      tensor,
-			model.Graph.Operation("y_true").Output(0): tensor2,
+			model.Graph.Operation("y_true").Output(0): tensorr,
+			//model.Graph.Operation("keep_prob").Output(0): keepProb,
 		},
 		[]tf.Output{
 			model.Graph.Operation("infer").Output(0),
-			model.Graph.Operation("keep_prob").Output(0),
 		},
 		nil,
 	)
@@ -120,10 +91,10 @@ func makeTensorFromImage(filename string) (*tf.Tensor, error) {
 	}
 	// Construct a graph to normalize the image
 	graph, input, output, err := constructGraphToNormalizeImage()
-
 	if err != nil {
 		return nil, err
 	}
+
 	// Execute that graph to normalize this one image
 	session, err := tf.NewSession(graph, nil)
 	if err != nil {

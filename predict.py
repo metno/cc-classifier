@@ -24,7 +24,7 @@ parser = argparse.ArgumentParser(description='Do cloud coverage preditcion on im
 parser.add_argument('--filename', type=str, help='Input image to do prediction on')
 parser.add_argument('--modeldir', type=str, help='Model dir', default='modeldata')
 parser.add_argument('--epoch', type=str, help='epoch', default=888)
-parser.add_argument('--with_probs', type=bool, default=False, help='output probabilities')
+parser.add_argument('--with-probs', type=bool, default=False, help='output probabilities')
 args = parser.parse_args()
 
 
