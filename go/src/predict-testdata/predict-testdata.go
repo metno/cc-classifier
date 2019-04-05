@@ -129,7 +129,7 @@ func main() {
 	}
 
 	cpus := runtime.NumCPU()
-	cpus = 15
+	cpus = 4
 	//runtime.GOMAXPROCS(cpus)
 
 

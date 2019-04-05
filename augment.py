@@ -73,28 +73,10 @@ def augment_data2(dataset, dataset_labels, label_counts):
             continue
         aug_factors[ccval] = round((label_counts[8]/num_augs_enabled) / label_counts[ccval])
     print(aug_factors)
-    """
-    print("dataset.load_training_data(): label %d, "
-    "Aug_factor: %f, "
-    "Num images: %f, "
-    "Num images after oversampling: %f" %
-    (ccval,
-    aug_factors[ccval],
-    label_counts[ccval],
-    aug_factors[ccval] * label_counts[ccval] * num_augs_enabled))
-    """
-
-    #maximg = {0: 3000, 1: 3000, 2: 3000, 3: 3000, 4: 3000, 5: 3000, 6: 3000, 7: 0, 8: 0}
-
-    # v28 # localhost
-
-
-    # Enough RAM on Floydhub
+        
     #maximg = {0: 8000, 1: 8000, 2: 8000, 3: 8000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 0}
-    #maximg = {0: 9000, 1: 9000, 2: 9000, 3: 9000, 4: 9000, 5: 9000, 6: 9000, 7: 9000, 8: 0}
-    #maximg = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0}
-    # Enough RAM on neo
-    maximg = {0: 3400, 1: 3200, 2: 3200, 3: 3200, 4: 3400, 5: 3200, 6: 3200, 7: 3200, 8: 3200}
+    # Best: 
+    maximg = {0: 12000, 1: 12000, 2: 12000, 3: 12000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 12000}
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
             print("Augmenting %d .." % num)
