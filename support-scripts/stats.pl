@@ -116,4 +116,19 @@ printf("Overall:           %.02f\n", $sum * 100);
 
 
 
+print("\nErrors <= 1 for each class:\n");
+$cnt = 0.0;
+$sum = 0.0;
+for ($i=0; $i<=8; $i++) {
+    if ( $lcounts{$i} ) {
+	printf("cc=$i, samples=$lcounts{$i}: %0.2f%%\n",  100* ($cnt2{$i}{'smaller_than_or_equal_one'}/$lcounts{$i}));
+	$sum = $sum + ($cnt2{$i}{'smaller_than_or_equal_one'}/$lcounts{$i});
+    }
+}
+$sum = $sum / 9.0;
+print("--------------------------\n");
+printf("Overall:           %.02f\n", $sum * 100);
+
+
+
 #print Dumper \%cnt2;

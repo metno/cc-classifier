@@ -11,6 +11,7 @@ Mandatory packages to be installed:
 
 import tensorflow as tf
 import numpy as np
+import math
 
 def flip_axis(x, axis):
     cp = np.copy(x)
@@ -71,12 +72,12 @@ def augment_data2(dataset, dataset_labels, label_counts):
     for ccval in range(0, 9):  # cloud coverage, values in [0,8]
         if num_augs_enabled == 0:
             continue
-        aug_factors[ccval] = round((label_counts[8]/num_augs_enabled) / label_counts[ccval])
+        aug_factors[ccval] = math.ceil((float(label_counts[8])/float(num_augs_enabled)) / float(label_counts[ccval]))
     print(aug_factors)
         
     #maximg = {0: 8000, 1: 8000, 2: 8000, 3: 8000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 0}
     # Best: 
-    maximg = {0: 12000, 1: 12000, 2: 12000, 3: 12000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 12000}
+    maximg = {0: 22000, 1: 22000, 2: 22000, 3: 22000, 4: 22000, 5: 22000, 6: 22000, 7: 22000, 8: 22000}
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
             print("Augmenting %d .." % num)
@@ -85,7 +86,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
         if counts[cc] >= maximg[cc]:
             continue
 
-        for i in range(0, aug_factors[cc] + 1) :
+        for i in range(0, aug_factors[cc] + 2) :
 
             if use_flip_axis is True:
                 augmented_images.append(flip_axis(dataset[num],1))
