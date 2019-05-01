@@ -1,4 +1,7 @@
-#!/usr/bin/python3 -u
+#!/bin/sh
+''''exec python -u -- "$0" ${1+"$@"} # '''
+# vi: syntax=python
+
 
 import tensorflow as tf
 import numpy as np
@@ -49,17 +52,22 @@ y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
 
 keep_prob = graph.get_tensor_by_name("keep_prob:0")
 
+is_training = graph.get_tensor_by_name("is_training:0")
+
 tensor_info_x = tf.saved_model.utils.build_tensor_info(x)
 tensor_info_y_pred = tf.saved_model.utils.build_tensor_info(y_pred)
 tensor_info_y_true = tf.saved_model.utils.build_tensor_info(y_true)
 tensor_info_y_pred_cls = tf.saved_model.utils.build_tensor_info(y_pred_cls)
 y_test_images = np.zeros((1, 9)) 
 
+keep_place =  tf.placeholder_with_default(1.0, shape=(), name='keep_prob')
+istrain_place = tf.placeholder_with_default(False, shape=(), name="is_training")
 
 tf.saved_model.simple_save(sess,
             "cc-predictor-model",
             inputs={"x": x, "y_true": y_true},
-            outputs={"infer": y_pred_cls, "keep_prob": keep_prob})
+            #outputs={"infer": y_pred_cls, "keep_prob": keep_place, "is_training": istrain_place})
+	    outputs={"infer": y_pred_cls})
 
 
 #builder = tf.saved_model.builder.SavedModelBuilder('cc-predictor-model')
