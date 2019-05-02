@@ -94,7 +94,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 print("Error: No match")
                 continue
 
-            if label_counts[int(cc)] >= 20000:
+            if label_counts[int(cc)] >= 3200:
                 continue
             
             try:

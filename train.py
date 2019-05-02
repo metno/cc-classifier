@@ -23,13 +23,13 @@ import os
 # Hyper params
 BATCH_SIZE        = 32
 
-DROPOUT_KEEP_PROB = 0.5
+DROPOUT_KEEP_PROB = 0.3
 
 # Slow ?
 LEARNING_RATE     = 1e-6
 
 # Train/validation split 30% of the data will automatically be used for validation
-VALIDATION_SIZE = 0.20
+VALIDATION_SIZE = 0.30
 
 use_L2_Regularization = False
 
