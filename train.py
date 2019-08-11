@@ -21,9 +21,10 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 32
+BATCH_SIZE        = 16
 
-DROPOUT_KEEP_PROB = 0.3
+DROPOUT_KEEP_PROB = 0.5
+
 
 # Slow ?
 LEARNING_RATE     = 1e-6
@@ -170,12 +171,13 @@ def train(start, num_iterations):
 
             # Calculate training loss and training accuracy
             loss_tr, acc_tr, summary_tr = session.run([cost, accuracy, merged],
-                                                         feed_dict=feed_dict_tr)
+                                                      feed_dict=feed_dict_tr)
             # For tensorboard:
             train_writer.add_summary(summary_tr, i)            
 
             # Calculate validation loss and validation accuracy
-            loss_valid, acc_valid, summary_val = session.run([cost, accuracy, merged], feed_dict=feed_dict_val)
+            loss_valid, acc_valid, summary_val = session.run([cost, accuracy, merged],
+							     feed_dict=feed_dict_val)
 
             # Tensorboard:
             test_writer.add_summary(summary_val, i)
@@ -331,8 +333,8 @@ if __name__ == "__main__":
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
-    correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
-    #correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+    #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
+    correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
