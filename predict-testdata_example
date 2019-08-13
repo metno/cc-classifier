@@ -1,0 +1,1 @@
+predict-testdata  --epoch 63 --labelfile /home/espenm/data/v51/testdata.txt --modeldir /lustre/storeB/users/espenm/models/v51_14000_dr07_b16_corrpredlt1 --predictscript ./predict.py
