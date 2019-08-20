@@ -21,14 +21,12 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 16
+BATCH_SIZE        = 48
 
-
-DROPOUT_KEEP_PROB = 0.7
-
+DROPOUT_KEEP_PROB = 0.2
 
 # Slow ?
-LEARNING_RATE     = 1e-5
+LEARNING_RATE     = 1e-6
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.35
