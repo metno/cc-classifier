@@ -21,9 +21,9 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 48
+BATCH_SIZE        = 64
 
-DROPOUT_KEEP_PROB = 0.2
+DROPOUT_KEEP_PROB = 0.5
 
 # Slow ?
 LEARNING_RATE     = 1e-6
@@ -252,6 +252,7 @@ if __name__ == "__main__":
         num_filters=3
     )
 
+    
     layer_conv3= create_convolutional_layer(
         is_train,
         input=layer_conv2,
@@ -277,7 +278,7 @@ if __name__ == "__main__":
     )
 
 
-    layer_flat = create_flatten_layer(layer_conv3)
+    layer_flat = create_flatten_layer(layer_conv5)
 
     #Let's define trainable weights and biases for the fully connected layer1.
     num_inputs=layer_flat.get_shape()[1:4].num_elements()
