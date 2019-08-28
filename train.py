@@ -21,9 +21,9 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 64
+BATCH_SIZE        = 128
 
-DROPOUT_KEEP_PROB = 0.5
+DROPOUT_KEEP_PROB = 0.3
 
 # Slow ?
 LEARNING_RATE     = 1e-6

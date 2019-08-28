@@ -21,9 +21,7 @@ class DataSet(object):
         self._num_examples = images.shape[0]
 
         self._images = images
-        self._labels = labels
-        #self._img_names = img_names
-        #self._cls = cls
+        self._labels = labels        
         self._epochs_done = 0
         self._index_in_epoch = 0
 
@@ -34,14 +32,6 @@ class DataSet(object):
     @property
     def labels(self):
         return self._labels
-
-    #@property
-    #def img_names(self):
-    #  return self._img_names
-
-    #@property
-    #def cls(self):
-    #  return self._cls
 
     @property
     def num_examples(self):
@@ -79,13 +69,9 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
     count8 = 0
     
     print("Loading ..")
-    cnt = 0;
     with open(labelsfile, "r") as ins:
         for line in ins:
-            cnt = cnt  + 1
-            #if cnt % 600  == 0:
-            #       print("loaded %d" % cnt)
-            #       break
+
             myre = re.compile(r'(\S+)\s+(-?\d)$')
             mo = myre.search(line.strip())
             if mo is not None:
@@ -95,7 +81,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 continue
 
             ## TODP: 
-            if label_counts[int(cc)] >= 8000:
+            if label_counts[int(cc)] >= 5000:
                 continue
             
             try:
@@ -108,7 +94,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 print("image %s is none" % path)
                 continue
             # Already resized
-        # image = cv2.resize(image, (image_size, image_size),0,0, cv2.INTER_LINEAR)
+            # image = cv2.resize(image, (image_size, image_size),0,0, cv2.INTER_LINEAR)
             if int(cc) < 0:
                 continue
 
@@ -151,14 +137,17 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
     train_images = images[validation_size:]
     train_labels = labels[validation_size:]
 
+    print("train_images1: %d, train_labels1: %d" %(len(train_images), len(train_labels)))
     do_aug = True
     if do_aug:
         print("Augmenting data ..")
         aug_images, aug_labels = augment.augment_data2(train_images, train_labels, label_counts)
+        print("aug_images2: %d, aug_labels2: %d" %(len(aug_images), len(aug_labels)))
 	
         train_images = np.concatenate([train_images, aug_images])
         train_labels = np.concatenate([train_labels, aug_labels])
-        
+
+    print("train_images2: %d, train_labels2: %d" %(len(train_images), len(train_labels)))
     train_images, train_labels = shuffle(train_images, train_labels)
 
     
@@ -172,4 +161,5 @@ if __name__ == "__main__":
     classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     #load_training_data("alldata.txt", 128, classes)
     #load_training_data("alldata.txt", 128, classes)
-    data = read_train_sets("alldata.txt", 128, classes, validation_size=0.30)
+
+    data = read_train_sets("/home/espenm/data/v51/alldata.txt", "/home/espenm/data/v51/training_data", 128, classes, validation_size=0.35)
