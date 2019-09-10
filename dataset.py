@@ -81,7 +81,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 continue
 
             ## TODP: 
-            if label_counts[int(cc)] >= 5000:
+            if label_counts[int(cc)] >= 12000:
                 continue
             
             try:
@@ -122,33 +122,40 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
 
     images, labels, label_counts = load_training_data(labelsfile, imagedir, image_size, classes)
     print("SIZE: %d" % (sys.getsizeof(images) / (1024*1024)))
+    
+    do_aug = True
+    if do_aug:
+        print("Augmenting data ..")
+        aug_images, aug_labels = augment.augment_data2(images, labels, label_counts)
+	
+        images = np.concatenate([images, aug_images])
+        labels = np.concatenate([labels, aug_labels])
+
 
     images, labels = shuffle(images, labels)
-
-
+    
     if isinstance(validation_size, float):
         validation_size = int(validation_size * images.shape[0])
 
     validation_images = images[:validation_size]
     validation_labels = labels[:validation_size]
-    validation_images, validation_labels = shuffle(validation_images, validation_labels)
+
 
 
     train_images = images[validation_size:]
     train_labels = labels[validation_size:]
 
     print("train_images1: %d, train_labels1: %d" %(len(train_images), len(train_labels)))
-    do_aug = True
-    if do_aug:
-        print("Augmenting data ..")
-        aug_images, aug_labels = augment.augment_data2(train_images, train_labels, label_counts)
-        print("aug_images2: %d, aug_labels2: %d" %(len(aug_images), len(aug_labels)))
+    #do_aug = True
+    #do_aug = False
+    #if do_aug:
+    #    print("Augmenting data ..")
+    #    aug_images, aug_labels = augment.augment_data2(train_images, train_labels, label_counts)
+    #    print("aug_images2: %d, aug_labels2: %d" %(len(aug_images), len(aug_labels)))
 	
-        train_images = np.concatenate([train_images, aug_images])
-        train_labels = np.concatenate([train_labels, aug_labels])
-
-    print("train_images2: %d, train_labels2: %d" %(len(train_images), len(train_labels)))
-    train_images, train_labels = shuffle(train_images, train_labels)
+    #    train_images = np.concatenate([train_images, aug_images])
+    #    train_labels = np.concatenate([train_labels, aug_labels])
+    
 
     
     data_sets.train = DataSet(train_images, train_labels)

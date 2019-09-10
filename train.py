@@ -21,12 +21,13 @@ import os
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 128
+BATCH_SIZE        = 64
 
-DROPOUT_KEEP_PROB = 0.3
+#DROPOUT_KEEP_PROB = 0.22
+DROPOUT_KEEP_PROB = 0.2
 
 # Slow ?
-LEARNING_RATE     = 1e-6
+LEARNING_RATE     = 1e-4
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.35
@@ -36,8 +37,6 @@ use_L2_Regularization = False
 # L2 regularization. This is a good penalty parameter value to start with ? 
 USE_BATCH_NORMALIZATION = False
 LAMBDA = 0.1
-
-
 
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
@@ -124,6 +123,9 @@ def create_flatten_layer(layer):
     layer = tf.reshape(layer, [-1, num_features])
 
     return layer
+
+
+
 
 
 def create_fc_layer(input,
@@ -217,7 +219,16 @@ if __name__ == "__main__":
     # We shall load all the training and validation images and labels into memory
     # using openCV and use that during training
     data = dataset.read_train_sets(args.labelsfile, args.imagedir, img_size, classes, validation_size=VALIDATION_SIZE)
+    # Shapes of training set
+    print("Training set (images) shape: {shape}".format(shape=data.train.images.shape))
+    print("Training set (labels) shape: {shape}".format(shape=data.train.labels.shape))
 
+    # Shapes of test set
+    print("Test set (images) shape: {shape}".format(shape=data.valid.images.shape))
+    print("Test set (labels) shape: {shape}".format(shape=data.valid.labels.shape))
+
+    
+    
     print("Complete reading input data. ")
     print("Number of files in Training-set:\t\t{}".format(len(data.train.labels)))
     print("Number of files in Validation-set:\t{}".format(len(data.valid.labels)))
@@ -241,18 +252,19 @@ if __name__ == "__main__":
         is_train,
         input=x,
         num_input_channels=3,
-        conv_filter_size=128,
+        #conv_filter_size=128,
+	conv_filter_size=8,
         num_filters=3
     )
     layer_conv2 = create_convolutional_layer(
         is_train,
         input=layer_conv1,
         num_input_channels=3,
-        conv_filter_size=64,
+        #conv_filter_size=64,
+	conv_filter_size=16,
         num_filters=3
     )
 
-    
     layer_conv3= create_convolutional_layer(
         is_train,
         input=layer_conv2,
@@ -265,7 +277,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv3,
         num_input_channels=3,
-        conv_filter_size=16,
+        #conv_filter_size=16,
+	conv_filter_size=64,
         num_filters=3
     )
 
@@ -273,7 +286,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv4,
         num_input_channels=3,
-        conv_filter_size=8,
+        #conv_filter_size=8,
+	conv_filter_size=128,
         num_filters=3
     )
 
@@ -333,15 +347,20 @@ if __name__ == "__main__":
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
     # This converge fast and should be good enough for our use. Lets use this.
     # turning it off for testing :
-    correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
-    #correct_prediction = tf.equal(y_pred_cls, y_true_cls)
+    #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
+    correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 
+    
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
+    #valid_acc, valid_acc_op = tf.metrics.accuracy(labels=tf.argmax(y_true, axis=1), predictions=tf.argmax(y_pred, 1))
+    #train_acc, train_acc_op = tf.metrics.accuracy(labels=tf.argmax(y_true, axis=1), predictions=tf.argmax(y_pred, 1))
+    
     # Create a summary to monitor cost tensor
     tf.summary.scalar("Loss", cost)
     # Create a summary to monitor accuracy tensor
     tf.summary.scalar("Accuracy", accuracy)
+    #tf.summary.scalar("Valid_Accuracy", valid_acc_op)
+    #tf.summary.scalar("Train_Accuracy", train_acc_op)
 
     #tf.summary.scalar('cross_entropy', cross_entropy)
 
@@ -353,7 +372,8 @@ if __name__ == "__main__":
     test_writer  = tf.summary.FileWriter(logs_path + '/test')
 
     session.run(tf.global_variables_initializer())
-
+    session.run(tf.local_variables_initializer())
+    
     saver = tf.train.Saver(max_to_keep=100000)
     path = args.inputdir
     start = 0

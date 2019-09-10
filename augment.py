@@ -48,7 +48,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
     augmented_image_labels = []
 
     use_flip_axis             = True
-    use_random_rotation       = True
+    use_random_rotation       = False
     use_random_shift          = False
     use_random_shear          = False
     use_copy                  = False
@@ -77,7 +77,7 @@ def augment_data2(dataset, dataset_labels, label_counts):
         aug_factors[ccval] = math.ceil((float(label_counts[8])/float(num_augs_enabled)) / float(label_counts[ccval]))
     print(aug_factors)
         
-    maximg = {0: 5000, 1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000, 6: 5000, 7: 5000, 8: 5000}
+    maximg = {0: 12000, 1: 12000, 2: 12000, 3: 12000, 4: 12000, 5: 12000, 6: 12000, 7: 12000, 8: 12000}
 
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
