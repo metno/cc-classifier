@@ -16,12 +16,13 @@ from numpy.random import seed
 from tensorflow import set_random_seed
 import argparse
 import os
+import tensorflow.contrib.slim as slim; 
 
 # This script was initially from a cv-tricks.com tutorial
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 64
+BATCH_SIZE        = 48
 
 #DROPOUT_KEEP_PROB = 0.22
 DROPOUT_KEEP_PROB = 0.2
@@ -30,13 +31,14 @@ DROPOUT_KEEP_PROB = 0.2
 LEARNING_RATE     = 1e-4
 
 # Train/validation split 30% of the data will automatically be used for validation
-VALIDATION_SIZE = 0.35
+VALIDATION_SIZE = 0.30
 
-use_L2_Regularization = False
+LAMBDA = 0.1
+use_L2_Regularization = True
 
 # L2 regularization. This is a good penalty parameter value to start with ? 
 USE_BATCH_NORMALIZATION = False
-LAMBDA = 0.1
+
 
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
@@ -52,6 +54,12 @@ parser.add_argument('--logdir', type=str, default='/tmp/tf', help='Metrics data'
 args = parser.parse_args()
 
 logs_path = args.logdir
+
+
+def model_summary():
+    model_vars = tf.trainable_variables()
+    slim.model_analyzer.analyze_vars(model_vars, print_info=True)
+
 
 # For tensorboard
 def variable_summaries(var):
@@ -79,6 +87,7 @@ def create_convolutional_layer(
         conv_filter_size,
         num_filters):
 
+       
     # Define the weights that will be trained.
     weights = create_weights(shape=[conv_filter_size, conv_filter_size, num_input_channels, num_filters])
     #variable_summaries(weights)
@@ -248,6 +257,9 @@ if __name__ == "__main__":
 
 
     is_train = tf.placeholder(tf.bool, name="is_training")
+
+    print("INPUT: ")
+    print(x)
     layer_conv1 = create_convolutional_layer(
         is_train,
         input=x,
@@ -256,6 +268,9 @@ if __name__ == "__main__":
 	conv_filter_size=8,
         num_filters=3
     )
+    print("Conv1")
+    print(layer_conv1)
+        
     layer_conv2 = create_convolutional_layer(
         is_train,
         input=layer_conv1,
@@ -291,12 +306,13 @@ if __name__ == "__main__":
         num_filters=3
     )
 
-
+    
     layer_flat = create_flatten_layer(layer_conv5)
 
     #Let's define trainable weights and biases for the fully connected layer1.
     num_inputs=layer_flat.get_shape()[1:4].num_elements()
-    num_outputs=128
+    #num_outputs=128
+    num_outputs=2048
     fc1_weights = create_weights(shape=[num_inputs, num_outputs])
     fc1_biases = create_biases(num_outputs)    
     layer_fc1 = create_fc_layer(input=layer_flat,                                
@@ -310,7 +326,9 @@ if __name__ == "__main__":
     # Argument to droupout is the probability of _keeping_ the neuron:
     keep_prob = tf.placeholder_with_default(1.0, shape=(), name='keep_prob')
     dropped = tf.nn.dropout(layer_fc1, keep_prob)
-    num_inputs=128
+    
+    #num_inputs=128
+    num_inputs=2048
     num_outputs=num_classes
     fc2_weights = create_weights(shape=[num_inputs, num_outputs])
     fc2_biases = create_biases(num_outputs)
@@ -321,7 +339,10 @@ if __name__ == "__main__":
                                 biases=fc2_biases,
                                 use_relu=False
     )
-
+    layer2_elms = layer_fc2.get_shape()[1:4].num_elements()
+    print("LAYER2 ELMS: " )
+    print(layer2_elms)
+    
     # Softmax is a function that maps [-inf, +inf] to [0, 1] similar as Sigmoid. But Softmax also
     # normalizes the sum of the values(output vector) to be 1.
     y_pred = tf.nn.softmax(layer_fc2,name='y_pred')
@@ -373,7 +394,8 @@ if __name__ == "__main__":
 
     session.run(tf.global_variables_initializer())
     session.run(tf.local_variables_initializer())
-    
+
+    model_summary()
     saver = tf.train.Saver(max_to_keep=100000)
     path = args.inputdir
     start = 0
