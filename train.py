@@ -22,7 +22,7 @@ import tensorflow.contrib.slim as slim;
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 48
+BATCH_SIZE        = 64
 
 #DROPOUT_KEEP_PROB = 0.22
 DROPOUT_KEEP_PROB = 0.2

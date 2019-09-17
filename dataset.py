@@ -81,7 +81,7 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 continue
 
             ## TODP: 
-            if label_counts[int(cc)] >= 8000:
+            if label_counts[int(cc)] >= 12000:
                 continue
             
             try:
