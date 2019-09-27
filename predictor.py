@@ -24,17 +24,19 @@ class Predictor(object):
         sys.stderr.write("modelfile: %s\n" % self.modelfile)
         self.metafile = "%s-%d.meta" % (self.checkpoint_file, self.checkpoint)
 
-    ## Let us restore the saved model -- OOBS: Doing this here gives different
-    # results on the same image when predicting multiple times ! Move it to
-    # The predict function
-    #self.sess = tf.Session()
-    # Step-1: Recreate the network graph. At this step only graph is
-    # created.
-    #self.saver = tf.train.import_meta_graph(self.metafile)
-    # Step-2: Now let's load the weights saved using the restore method.
-    #self.saver.restore(self.sess, self.modelfile)
-    # Accessing the default graph which we have restored
-    #self.graph = tf.get_default_graph()
+        ## Let us restore the saved model -- OOBS: Doing this here gives different
+        # results on the same image when predicting multiple times ! Move it to
+        # The predict function
+        # Update 2019-09-27: The above is not true anymore. Must have been a bug in
+        # an earlier version of tensorflow
+        self.sess = tf.Session()
+        # Step-1: Recreate the network graph. At this step only graph is
+        # created.
+        self.saver = tf.train.import_meta_graph(self.metafile)
+        # Step-2: Now let's load the weights saved using the restore method.
+        self.saver.restore(self.sess, self.modelfile)
+        # Accessing the default graph which we have restored
+        self.graph = tf.get_default_graph()
 
     def predict(self, image_path):
 
@@ -62,17 +64,18 @@ class Predictor(object):
         images = np.multiply(images, 1.0/255.0)
 
         ## Let us restore the saved model
-        self.sess = tf.Session()
+        #self.sess = tf.Session()
         # Step-1: Recreate the network graph. At this step only graph is
         # created.
-        saver = tf.train.import_meta_graph(self.metafile)
+        #saver = tf.train.import_meta_graph(self.metafile)
         # Step-2: Now let's load the weights saved using the restore method.
-        saver.restore(self.sess, self.modelfile)
+
+        #saver.restore(self.sess, self.modelfile)
 
         #tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], "cc-predictor-model")
                 
         # Accessing the default graph which we have restored
-        self.graph = tf.get_default_graph()
+        #self.graph = tf.get_default_graph()
         
 
         
@@ -99,7 +102,7 @@ class Predictor(object):
         # y_pred
         feed_dict_testing = {self.x: x_batch, self.y_true: self.y_test_images, self.keep_prob: 1.0, self.is_training: False}
         result = self.sess.run(self.y_pred, feed_dict=feed_dict_testing)
-        self.sess.close()
-        self.sess = None
+        #self.sess.close()
+        #self.sess = None
         #print(result)
         return result
