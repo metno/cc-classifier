@@ -29,14 +29,15 @@ class Predictor(object):
         # The predict function
         # Update 2019-09-27: The above is not true anymore. Must have been a bug in
         # an earlier version of tensorflow
-        self.sess = tf.Session()
+        #self.sess = tf.Session()
+        self.sess = tf.compat.v1.Session()
         # Step-1: Recreate the network graph. At this step only graph is
         # created.
-        self.saver = tf.train.import_meta_graph(self.metafile)
+        self.saver = tf.compat.v1.train.import_meta_graph(self.metafile)
         # Step-2: Now let's load the weights saved using the restore method.
         self.saver.restore(self.sess, self.modelfile)
         # Accessing the default graph which we have restored
-        self.graph = tf.get_default_graph()
+        self.graph = tf.compat.v1.get_default_graph()
 
     def predict(self, image_path):
 
@@ -106,3 +107,9 @@ class Predictor(object):
         #self.sess = None
         #print(result)
         return result
+
+
+    # Deleting (Calling destructor) 
+    def __del__(self):
+        self.sess.close()
+        self.sess = None
