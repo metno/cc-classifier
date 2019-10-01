@@ -87,5 +87,5 @@ print(title)
 fig, ax = plt.subplots()
 plt.title(title)
 sn.set(font_scale=1.4)#for label size
-sn.heatmap(df_cm, annot=True,fmt="d", annot_kws={"size": 16})# font size
+sn.heatmap(df_cm, annot=True,fmt="d", annot_kws={"size": 12})# font size
 plt.savefig('confusion.png', dpi=400)
