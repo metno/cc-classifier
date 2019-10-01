@@ -1,5 +1,5 @@
 #!/bin/sh
-''''exec python -u -- "$0" ${1+"$@"} # '''
+''''exec python3 -u -- "$0" ${1+"$@"} # '''
 # vi: syntax=python
 
 
