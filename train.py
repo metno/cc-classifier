@@ -22,10 +22,13 @@ import tensorflow.contrib.slim as slim;
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 256
+BATCH_SIZE        = 512
 
 #DROPOUT_KEEP_PROB = 0.22
-DROPOUT_KEEP_PROB = 0.1
+DROPOUT_KEEP_PROB = 0.9
+
+DO_DROPOUT_ON_HIDDEN_LAYER = True
+DROPOUT_KEEP_PROB_HIDDEN = 0.95
 
 # Slow ?
 LEARNING_RATE     = 1e-4
@@ -80,6 +83,8 @@ def create_weights(shape):
 def create_biases(size):
     return tf.Variable(tf.constant(0.05, shape=[size]))
 
+    
+keep_prob_hidden = tf.placeholder_with_default(1.0, shape=(), name='keep_prob_hidden')
 def create_convolutional_layer(
         is_train,
         input,
@@ -116,7 +121,11 @@ def create_convolutional_layer(
         # One can set updates_collections=None to force the updates in place, but that can have a speed penalty, especially in distributed settings.
         layer = tf.contrib.layers.batch_norm(layer, scale=True, is_training=is_train, zero_debias_moving_mean=True, decay=0.999, updates_collections=None )
     layer = tf.nn.relu(layer)
-        
+
+    if DO_DROPOUT_ON_HIDDEN_LAYER == True :
+       
+       layer = tf.nn.dropout(layer, keep_prob_hidden)
+    
     return layer
 
 
@@ -166,6 +175,7 @@ def train(start, num_iterations):
         feed_dict_tr = {x: x_batch,
                         y_true: y_true_batch,
                         keep_prob: DROPOUT_KEEP_PROB,
+			keep_prob_hidden: DROPOUT_KEEP_PROB_HIDDEN,
                         is_train: True
         }
         feed_dict_val = {x: x_valid_batch,
