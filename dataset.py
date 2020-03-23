@@ -54,7 +54,8 @@ class DataSet(object):
             assert batch_size <= self._num_examples
         end = self._index_in_epoch
 
-        return self._images[start:end], self._labels[start:end]
+        return shuffle(self._images[start:end], self._labels[start:end])
+        #return self._images[start:end], self._labels[start:end]
 
 
 def load_training_data(labelsfile, imagedir, image_size, classes):
