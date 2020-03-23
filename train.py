@@ -378,8 +378,8 @@ if __name__ == "__main__":
 
     optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(cost)
     # SGD + momentum :
-    #optimizer = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.9).minimize(cost)	
- 
+    #optimizer = tf.train.MomentumOptimizer(learning_rate=LEARNING_RATE, momentum=0.9).minimize(cost)
+
     # Note that we must label the infer-operation for use from go!!
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
     # This converge fast and should be good enough for our use. Lets use this.
