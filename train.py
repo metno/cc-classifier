@@ -27,17 +27,17 @@ BATCH_SIZE        = 256
 
 
 #DROPOUT_KEEP_PROB = 0.22
-DROPOUT_KEEP_PROB = 0.15
+DROPOUT_KEEP_PROB = 1.0
 
-DO_DROPOUT_ON_HIDDEN_LAYER = True
-DROPOUT_KEEP_PROB_HIDDEN = 0.98
+DO_DROPOUT_ON_HIDDEN_LAYER = False
+DROPOUT_KEEP_PROB_HIDDEN = 0.5
 
 # Slow ?
 LEARNING_RATE     = 1e-4
 
 
 # Train/validation split 30% of the data will automatically be used for validation
-VALIDATION_SIZE = 0.30
+VALIDATION_SIZE = 0.25
 
 LAMBDA = 0.1
 use_L2_Regularization = False
@@ -326,7 +326,7 @@ if __name__ == "__main__":
     #Let's define trainable weights and biases for the fully connected layer1.
     num_inputs=layer_flat.get_shape()[1:4].num_elements()
     #num_outputs=128
-    num_outputs=2048
+    num_outputs=128
     fc1_weights = create_weights(shape=[num_inputs, num_outputs])
     fc1_biases = create_biases(num_outputs)
     layer_fc1 = create_fc_layer(input=layer_flat,
@@ -342,7 +342,7 @@ if __name__ == "__main__":
     dropped = tf.nn.dropout(layer_fc1, keep_prob)
 
     #num_inputs=128
-    num_inputs=2048
+    num_inputs=128
     num_outputs=num_classes
     fc2_weights = create_weights(shape=[num_inputs, num_outputs])
     fc2_biases = create_biases(num_outputs)
