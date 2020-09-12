@@ -23,21 +23,20 @@ import sys
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 256
-
+BATCH_SIZE        = 512
 
 #DROPOUT_KEEP_PROB = 0.22
-DROPOUT_KEEP_PROB = 1.0
+DROPOUT_KEEP_PROB = 0.5
 
-DO_DROPOUT_ON_HIDDEN_LAYER = False
-DROPOUT_KEEP_PROB_HIDDEN = 0.5
+DO_DROPOUT_ON_HIDDEN_LAYER = True
+DROPOUT_KEEP_PROB_HIDDEN = 0.9
 
 # Slow ?
 LEARNING_RATE     = 1e-4
 
 
 # Train/validation split 30% of the data will automatically be used for validation
-VALIDATION_SIZE = 0.25
+VALIDATION_SIZE = 0.30
 
 LAMBDA = 0.1
 use_L2_Regularization = False
@@ -45,7 +44,8 @@ use_L2_Regularization = False
 # L2 regularization. This is a good penalty parameter value to start with ?
 USE_BATCH_NORMALIZATION = False
 
-
+NUM_OUTPUTS_FC1 = 1024
+NUM_INPUTS_FC2 = NUM_OUTPUTS_FC1
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
 parser.add_argument('--labelsfile', type=str, help='A labels file containing lines like this: fileNNN.jpg 6')
@@ -278,8 +278,8 @@ if __name__ == "__main__":
         is_train,
         input=x,
         num_input_channels=3,
-        #conv_filter_size=128,
-        conv_filter_size=8,
+        conv_filter_size=128,
+        #conv_filter_size=8,
         num_filters=3
     )
     print("Conv1")
@@ -289,8 +289,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv1,
         num_input_channels=3,
-        #conv_filter_size=64,
-        conv_filter_size=16,
+        conv_filter_size=64,
+        #conv_filter_size=16,
         num_filters=3
     )
 
@@ -306,8 +306,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv3,
         num_input_channels=3,
-        #conv_filter_size=16,
-        conv_filter_size=64,
+        conv_filter_size=16,
+        #conv_filter_size=64,
         num_filters=3
     )
 
@@ -315,8 +315,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv4,
         num_input_channels=3,
-        #conv_filter_size=8,
-        conv_filter_size=128,
+        conv_filter_size=8,
+        #conv_filter_size=128,
         num_filters=3
     )
 
@@ -325,10 +325,9 @@ if __name__ == "__main__":
 
     #Let's define trainable weights and biases for the fully connected layer1.
     num_inputs=layer_flat.get_shape()[1:4].num_elements()
-    #num_outputs=128
-    num_outputs=128
-    fc1_weights = create_weights(shape=[num_inputs, num_outputs])
-    fc1_biases = create_biases(num_outputs)
+
+    fc1_weights = create_weights(shape=[num_inputs, NUM_OUTPUTS_FC1])
+    fc1_biases = create_biases(NUM_OUTPUTS_FC1)
     layer_fc1 = create_fc_layer(input=layer_flat,
                                 weights=fc1_weights,
                                 biases=fc1_biases,
@@ -341,10 +340,8 @@ if __name__ == "__main__":
     keep_prob = tf.placeholder_with_default(1.0, shape=(), name='keep_prob')
     dropped = tf.nn.dropout(layer_fc1, keep_prob)
 
-    #num_inputs=128
-    num_inputs=128
     num_outputs=num_classes
-    fc2_weights = create_weights(shape=[num_inputs, num_outputs])
+    fc2_weights = create_weights(shape=[NUM_INPUTS_FC2, num_outputs])
     fc2_biases = create_biases(num_outputs)
 
 
