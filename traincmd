@@ -1,0 +1,1 @@
+nohup ./train.py --labelsfile /home/espenm/data/v52/alldata.txt  --imagedir /home/espenm/data/v52/training_data --outputdir /lustre/storeB/users/espenm/models/v52rerun &
