@@ -134,8 +134,6 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
     #    images = np.concatenate([images, aug_images])
     #    labels = np.concatenate([labels, aug_labels])
 
-
-    
     
     if isinstance(validation_size, float):
         validation_size = int(validation_size * images.shape[0])
@@ -144,7 +142,6 @@ def read_train_sets(labelsfile, imagedir, image_size, classes, validation_size):
     validation_labels = labels[:validation_size]
     
     
-
     train_images = images[validation_size:]
     train_labels = labels[validation_size:]
 

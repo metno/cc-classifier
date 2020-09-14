@@ -23,7 +23,7 @@ import sys
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 512
+BATCH_SIZE        = 32
 
 #DROPOUT_KEEP_PROB = 0.22
 DROPOUT_KEEP_PROB = 0.5
@@ -32,7 +32,7 @@ DO_DROPOUT_ON_HIDDEN_LAYER = True
 DROPOUT_KEEP_PROB_HIDDEN = 0.9
 
 # Slow ?
-LEARNING_RATE     = 1e-4
+LEARNING_RATE     = 1e-5
 
 
 # Train/validation split 30% of the data will automatically be used for validation
@@ -247,8 +247,8 @@ if __name__ == "__main__":
     print("Training set (labels) shape: {shape}".format(shape=data.train.labels.shape))
 
     # Shapes of test set
-    print("Test set (images) shape: {shape}".format(shape=data.valid.images.shape))
-    print("Test set (labels) shape: {shape}".format(shape=data.valid.labels.shape))
+    print("Validation set (images) shape: {shape}".format(shape=data.valid.images.shape))
+    print("Validation set (labels) shape: {shape}".format(shape=data.valid.labels.shape))
 
 
 
