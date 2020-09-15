@@ -28,11 +28,11 @@ BATCH_SIZE        = 32
 #DROPOUT_KEEP_PROB = 0.22
 DROPOUT_KEEP_PROB = 0.5
 
-DO_DROPOUT_ON_HIDDEN_LAYER = True
+DO_DROPOUT_ON_HIDDEN_LAYER = False
 DROPOUT_KEEP_PROB_HIDDEN = 0.9
 
 # Slow ?
-LEARNING_RATE     = 1e-5
+LEARNING_RATE     = 1e-4
 
 
 # Train/validation split 30% of the data will automatically be used for validation
@@ -171,8 +171,11 @@ def show_progress(iteration, epoch, acc_tr, loss_tr, acc_valid, loss_valid):
 
 
 def train(start, num_iterations):
+     # initialize/reset the running variables
+    
 
     for i in range(start, num_iterations):
+
         x_batch, y_true_batch = data.train.next_batch(BATCH_SIZE)
         x_valid_batch, y_valid_batch = data.valid.next_batch(BATCH_SIZE)
         feed_dict_tr = {x: x_batch,
@@ -190,22 +193,34 @@ def train(start, num_iterations):
         session.run(optimizer, feed_dict=feed_dict_tr)
 
         if i % int(data.train.num_examples/BATCH_SIZE) == 0:
+            # Reset the running variables ??
+            session.run(running_vars_initializer)
+
             epoch = int(i / int(data.train.num_examples/BATCH_SIZE))
 
-            # Calculate training loss and training accuracy
-            loss_tr, acc_tr, summary_tr = session.run([cost, accuracy, merged],
-                                                      feed_dict=feed_dict_tr)
-            # For tensorboard:
-            train_writer.add_summary(summary_tr, i)
+            # summary metrics for Tensorboard:
+            val_acc, summary_acct = session.run([accuracy, merged], feed_dict=feed_dict_val)
+            test_writer.add_summary(summary_acct, i)
+            train_acc, summary_acct = session.run([accuracy, merged], feed_dict=feed_dict_tr)
+            train_writer.add_summary(summary_acct, i)
 
-            # Calculate validation loss and validation accuracy
-            loss_valid, acc_valid, summary_val = session.run([cost, accuracy, merged],
-                                                             feed_dict=feed_dict_val)
+            val_loss, summary_loss = session.run([cost, merged], feed_dict=feed_dict_val)
+            test_writer.add_summary(summary_loss, i)
 
-            # Tensorboard:
-            test_writer.add_summary(summary_val, i)
+            train_loss, summary_loss = session.run([cost, merged], feed_dict=feed_dict_tr)
+            train_writer.add_summary(summary_loss, i)
 
-            show_progress(i, epoch, acc_tr, loss_tr, acc_valid, loss_valid)
+            show_progress(i, epoch, train_acc, train_loss, val_acc, val_loss)
+        
+
+            session.run(tf_metric_update_tr, feed_dict=feed_dict_tr)
+            # Calculate the score on this batch
+            score_tr = session.run(tf_metric_tr)
+            session.run(tf_metric_update_val, feed_dict=feed_dict_val)
+            # Calculate the score on this batch
+            score_valid = session.run(tf_metric_val)
+            print("[TF] batch {} score_tr: {}, score_valid: {}".format(i, score_tr, score_valid))
+
 
             saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
 
@@ -379,31 +394,39 @@ if __name__ == "__main__":
 
     # Note that we must label the infer-operation for use from go!!
     y_pred_cls = tf.argmax(y_pred, axis=1, name="infer")
-    # This converge fast and should be good enough for our use. Lets use this.
-    # turning it off for testing :
+
     #correct_prediction = tf.abs(tf.subtract(y_pred_cls, y_true_cls)) <= 1
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 
+    # Define the metric and update operations
+    tf_metric_tr , tf_metric_update_tr  = tf.metrics.accuracy(y_true_cls,
+                                                      y_pred_cls,
+                                                      name="my_metric")
+
+    tf_metric_val, tf_metric_update_val = tf.metrics.accuracy(y_true_cls,
+                                                      y_pred_cls,
+                                                      name="my_metric")
+
+
+
+    # Isolate the variables stored behind the scenes by the metric operation
+    running_vars = tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="my_metric")
+
+    # Define initializer to initialize/reset running variables
+    running_vars_initializer = tf.variables_initializer(var_list=running_vars)
 
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    #valid_acc, valid_acc_op = tf.metrics.accuracy(labels=tf.argmax(y_true, axis=1), predictions=tf.argmax(y_pred, 1))
-    #train_acc, train_acc_op = tf.metrics.accuracy(labels=tf.argmax(y_true, axis=1), predictions=tf.argmax(y_pred, 1))
-
     # Create a summary to monitor cost tensor
     tf.summary.scalar("Loss", cost)
     # Create a summary to monitor accuracy tensor
     tf.summary.scalar("Accuracy", accuracy)
-    #tf.summary.scalar("Valid_Accuracy", valid_acc_op)
-    #tf.summary.scalar("Train_Accuracy", train_acc_op)
-
-    #tf.summary.scalar('cross_entropy', cross_entropy)
 
     # merge all summaries into a single "operation" which we can execute in a session
     merged = tf.summary.merge_all()
     # create log writer object
 
     train_writer = tf.summary.FileWriter(logs_path + '/train', session.graph)
-    test_writer  = tf.summary.FileWriter(logs_path + '/test')
+    test_writer  = tf.summary.FileWriter(logs_path + '/test', session.graph)
 
     session.run(tf.global_variables_initializer())
     session.run(tf.local_variables_initializer())
