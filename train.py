@@ -23,16 +23,16 @@ import sys
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 32
+BATCH_SIZE        = 512
 
 #DROPOUT_KEEP_PROB = 0.22
 DROPOUT_KEEP_PROB = 0.5
 
-DO_DROPOUT_ON_HIDDEN_LAYER = False
+DO_DROPOUT_ON_HIDDEN_LAYER = True
 DROPOUT_KEEP_PROB_HIDDEN = 0.9
 
 # Slow ?
-LEARNING_RATE     = 1e-4
+LEARNING_RATE     = 1e-5
 
 
 # Train/validation split 30% of the data will automatically be used for validation
@@ -166,7 +166,7 @@ def create_fc_layer(input,
 
 
 def show_progress(iteration, epoch, acc_tr, loss_tr, acc_valid, loss_valid):
-    msg = "Iteration {5} Training Epoch {0} - Training Accuracy: {1:>6.1%}, Train loss: {2:>.3f}, Validation Accuracy: {3:>6.1%},  Val Loss: {4:.3f}"
+    msg = "Iteration {5}, Training Epoch {0}, Training Accuracy%: {1:>6.1}, Train loss: {2:>.3f}, Validation Accuracy%: {3:>6.1}, Val Loss: {4:.3f}"
     print("%s %s" % (msg.format(epoch + 1, acc_tr, loss_tr, acc_valid, loss_valid, iteration ), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
@@ -199,27 +199,28 @@ def train(start, num_iterations):
             epoch = int(i / int(data.train.num_examples/BATCH_SIZE))
 
             # summary metrics for Tensorboard:
-            val_acc, summary_acct = session.run([accuracy, merged], feed_dict=feed_dict_val)
-            test_writer.add_summary(summary_acct, i)
             train_acc, summary_acct = session.run([accuracy, merged], feed_dict=feed_dict_tr)
             train_writer.add_summary(summary_acct, i)
-
-            val_loss, summary_loss = session.run([cost, merged], feed_dict=feed_dict_val)
-            test_writer.add_summary(summary_loss, i)
+	    
+            val_acc, summary_acct = session.run([accuracy, merged], feed_dict=feed_dict_val)
+            test_writer.add_summary(summary_acct, i)
 
             train_loss, summary_loss = session.run([cost, merged], feed_dict=feed_dict_tr)
             train_writer.add_summary(summary_loss, i)
 
+            val_loss, summary_loss = session.run([cost, merged], feed_dict=feed_dict_val)
+            test_writer.add_summary(summary_loss, i)
+
+        
             show_progress(i, epoch, train_acc, train_loss, val_acc, val_loss)
         
-
-            session.run(tf_metric_update_tr, feed_dict=feed_dict_tr)
+            #session.run(tf_metric_update_tr, feed_dict=feed_dict_tr)
             # Calculate the score on this batch
-            score_tr = session.run(tf_metric_tr)
-            session.run(tf_metric_update_val, feed_dict=feed_dict_val)
+            #score_tr = session.run(tf_metric_tr)
+            #session.run(tf_metric_update_val, feed_dict=feed_dict_val)
             # Calculate the score on this batch
-            score_valid = session.run(tf_metric_val)
-            print("[TF] batch {} score_tr: {}, score_valid: {}".format(i, score_tr, score_valid))
+            #score_valid = session.run(tf_metric_val)
+            #print("[TF] batch {} score_tr: {}, score_valid: {}".format(i, score_tr, score_valid))
 
 
             saver.save(session, args.outputdir + '/cc-predictor-model', global_step=epoch)
