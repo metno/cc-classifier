@@ -28,11 +28,11 @@ BATCH_SIZE        = 512
 #DROPOUT_KEEP_PROB = 0.22
 DROPOUT_KEEP_PROB = 0.5
 
-DO_DROPOUT_ON_HIDDEN_LAYER = True
+DO_DROPOUT_ON_HIDDEN_LAYER = False
 DROPOUT_KEEP_PROB_HIDDEN = 0.9
 
 # Slow ?
-LEARNING_RATE     = 1e-5
+LEARNING_RATE     = 1e-4
 
 
 # Train/validation split 30% of the data will automatically be used for validation
@@ -166,8 +166,8 @@ def create_fc_layer(input,
 
 
 def show_progress(iteration, epoch, acc_tr, loss_tr, acc_valid, loss_valid):
-    msg = "Iteration {5}, Training Epoch {0}, Training Accuracy%: {1:>6.1}, Train loss: {2:>.3f}, Validation Accuracy%: {3:>6.1}, Val Loss: {4:.3f}"
-    print("%s %s" % (msg.format(epoch + 1, acc_tr, loss_tr, acc_valid, loss_valid, iteration ), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+    msg = "Iteration: {5}, Training Epoch: {0}, Training Accuracy%: {1:.2f}, Train loss: {2:.3f}, Validation Accuracy%: {3:.2f}, Val Loss: {4:.3f}"
+    print("%s %s" % (msg.format(epoch + 1, acc_tr * 100.0, loss_tr, acc_valid * 100.0, loss_valid, iteration ), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
 
 
 def train(start, num_iterations):
