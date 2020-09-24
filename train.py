@@ -26,20 +26,20 @@ import sys
 BATCH_SIZE        = 512
 
 #DROPOUT_KEEP_PROB = 0.22
-DROPOUT_KEEP_PROB = 0.5
+DROPOUT_KEEP_PROB = 0.1
 
-DO_DROPOUT_ON_HIDDEN_LAYER = False
+DO_DROPOUT_ON_HIDDEN_LAYER = True
 DROPOUT_KEEP_PROB_HIDDEN = 0.9
 
 # Slow ?
-LEARNING_RATE     = 1e-4
+LEARNING_RATE     = 1e-5
 
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 
 LAMBDA = 0.1
-use_L2_Regularization = False
+use_L2_Regularization = True
 
 # L2 regularization. This is a good penalty parameter value to start with ?
 USE_BATCH_NORMALIZATION = False
