@@ -1,2 +1,2 @@
-grep Itera $1  | sort -k17 -r -n
+grep Itera $1  | sort -k16 -r -n
 

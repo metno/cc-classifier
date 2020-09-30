@@ -23,28 +23,28 @@ import sys
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 512
+BATCH_SIZE        = 32
 
 #DROPOUT_KEEP_PROB = 0.22
-DROPOUT_KEEP_PROB = 0.1
+DROPOUT_KEEP_PROB = 0.5
 
 DO_DROPOUT_ON_HIDDEN_LAYER = True
 DROPOUT_KEEP_PROB_HIDDEN = 0.9
 
 # Slow ?
-LEARNING_RATE     = 1e-5
+LEARNING_RATE     = 1e-4
 
 
 # Train/validation split 30% of the data will automatically be used for validation
 VALIDATION_SIZE = 0.30
 
 LAMBDA = 0.1
-use_L2_Regularization = True
+use_L2_Regularization = False
 
 # L2 regularization. This is a good penalty parameter value to start with ?
 USE_BATCH_NORMALIZATION = False
 
-NUM_OUTPUTS_FC1 = 1024
+NUM_OUTPUTS_FC1 = 2048
 NUM_INPUTS_FC2 = NUM_OUTPUTS_FC1
 
 parser = argparse.ArgumentParser(description='Train a cnn for predicting cloud coverage')
@@ -165,15 +165,16 @@ def create_fc_layer(input,
     return layer
 
 
-def show_progress(iteration, epoch, acc_tr, loss_tr, acc_valid, loss_valid):
-    msg = "Iteration: {5}, Training Epoch: {0}, Training Accuracy%: {1:.2f}, Train loss: {2:.3f}, Validation Accuracy%: {3:.2f}, Val Loss: {4:.3f}"
-    print("%s %s" % (msg.format(epoch + 1, acc_tr * 100.0, loss_tr, acc_valid * 100.0, loss_valid, iteration ), datetime.datetime.now().strftime("%Y-%m-%d %H:%M")))
+def show_progress(iteration, epoch, acc_tr, loss_tr, acc_valid, loss_valid, lossup):
+    msg = "Iteration: {5}, Epoch: {0}, Training Accuracy%: {1:.2f}, Train loss: {2:.3f}, Validation Accuracy%: {3:.2f}, Val Loss: {4:.3f}"
+    print("%s %s lossup: %d" % (msg.format(epoch + 1, acc_tr * 100.0, loss_tr, acc_valid * 100.0, loss_valid, iteration ), datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), lossup ))
 
 
 def train(start, num_iterations):
-     # initialize/reset the running variables
-    
 
+    prev_val_loss = 100
+    lossup = []
+    
     for i in range(start, num_iterations):
 
         x_batch, y_true_batch = data.train.next_batch(BATCH_SIZE)
@@ -211,8 +212,16 @@ def train(start, num_iterations):
             val_loss, summary_loss = session.run([cost, merged], feed_dict=feed_dict_val)
             test_writer.add_summary(summary_loss, i)
 
-        
-            show_progress(i, epoch, train_acc, train_loss, val_acc, val_loss)
+            # For "Early stopping" (Future feature) 
+            if prev_val_loss < val_loss: 
+                lossup.append(val_loss)
+            else:
+                if len(lossup) > 0:
+                    lossup.pop()
+	    
+            prev_val_loss = val_loss
+
+            show_progress(i, epoch, train_acc, train_loss, val_acc, val_loss, len(lossup))
         
             #session.run(tf_metric_update_tr, feed_dict=feed_dict_tr)
             # Calculate the score on this batch
@@ -294,8 +303,8 @@ if __name__ == "__main__":
         is_train,
         input=x,
         num_input_channels=3,
-        conv_filter_size=128,
-        #conv_filter_size=8,
+        #conv_filter_size=128,
+        conv_filter_size=8,
         num_filters=3
     )
     print("Conv1")
@@ -305,8 +314,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv1,
         num_input_channels=3,
-        conv_filter_size=64,
-        #conv_filter_size=16,
+        #conv_filter_size=64,
+        conv_filter_size=16,
         num_filters=3
     )
 
@@ -322,8 +331,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv3,
         num_input_channels=3,
-        conv_filter_size=16,
-        #conv_filter_size=64,
+        #conv_filter_size=16,
+        conv_filter_size=64,
         num_filters=3
     )
 
@@ -331,8 +340,8 @@ if __name__ == "__main__":
         is_train,
         input=layer_conv4,
         num_input_channels=3,
-        conv_filter_size=8,
-        #conv_filter_size=128,
+        #conv_filter_size=8,
+        conv_filter_size=128,
         num_filters=3
     )
 

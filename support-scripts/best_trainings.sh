@@ -1,1 +1,1 @@
-grep Itera nohup.out | sort -k 8 -n
+grep Itera nohup.out | sort -k 7 -n

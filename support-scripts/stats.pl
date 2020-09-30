@@ -115,7 +115,7 @@ for ($i=0; $i<=8; $i++) {
 }
 $sum = $sum / 9.0;
 print("--------------------------\n");
-printf("Mean:           %.02f\n", $sum * 100);
+printf("Average:           %.02f\n", $sum * 100);
 
 
 
@@ -132,7 +132,7 @@ for ($i=0; $i<=8; $i++) {
 }
 $sum = $sum / 9.0;
 print("--------------------------\n");
-printf("Mean:           %.02f\n", $sum * 100);
+printf("Average:           %.02f\n", $sum * 100);
 
 
 
