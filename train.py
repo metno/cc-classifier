@@ -23,10 +23,10 @@ import sys
 # It has a MIT licence
 
 # Hyper params
-BATCH_SIZE        = 32
+BATCH_SIZE        = 1024
 
 #DROPOUT_KEEP_PROB = 0.22
-DROPOUT_KEEP_PROB = 0.5
+DROPOUT_KEEP_PROB = 0.3
 
 DO_DROPOUT_ON_HIDDEN_LAYER = True
 DROPOUT_KEEP_PROB_HIDDEN = 0.9
