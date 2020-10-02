@@ -39,7 +39,7 @@ LEARNING_RATE     = 1e-4
 VALIDATION_SIZE = 0.30
 
 LAMBDA = 0.1
-use_L2_Regularization = False
+use_L2_Regularization = True
 
 # L2 regularization. This is a good penalty parameter value to start with ?
 USE_BATCH_NORMALIZATION = False
