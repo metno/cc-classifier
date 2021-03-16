@@ -1,1 +1,0 @@
-./train.py --labelsfile ../data/v22min/alldata.txt  --imagedir ../data/v22min/training_data --outputdir modeldata/v22min

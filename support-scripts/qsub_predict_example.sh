@@ -1,1 +1,0 @@
-qsub -l h_vmem=100G -sync y -b y -q ded-parallelx.q -o stats_v28_96_256 "/home/espenm/bin/predict-testdata --epoch 256 --labelfile /lustre/storeB/users/espenm/cc-classifier/testdata.txt --predictscript /lustre/storeB/users/espenm/cc-classifier/predict.py --modeldir /lustre/storeB/users/espenm/models/v28_96 "
