@@ -3,7 +3,6 @@
 
 import sys
 from matplotlib import pyplot
-from keras.datasets import cifar10
 from keras.utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Conv2D
@@ -23,7 +22,6 @@ import keras
 from keras.preprocessing import image
 import matplotlib.pyplot as plt
 import numpy as np
-leaky_relu_alpha = 0.1
 
 def load_image(img_path, show=False):
 
@@ -75,50 +73,41 @@ def prep_pixels(train, test):
     # return normalized images
     return train_norm, test_norm
 
-# define cnn model
+# Define cnn model
 def define_model():
     model = Sequential()
     model.add(Conv2D(128, (3, 3), activation='relu', padding='same', input_shape=(128, 128, 3)))
-    #model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
+    model.add(BatchNormalization())
     model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.1))
+    model.add(Dropout(0.6))
     
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
+    model.add(BatchNormalization())
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
+    model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.7))
     
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
+    model.add(BatchNormalization())
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
+    model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.8))
     
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
+    model.add(BatchNormalization())
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
+    model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.4))
+    model.add(Dropout(0.8))
     
     model.add(Flatten())
     model.add(Dense(1024, activation='relu' ))
     model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=leaky_relu_alpha)) 
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.8))
     model.add(Dense(9, activation='softmax'))
     # compile model
     #opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-4)
@@ -144,8 +133,8 @@ def summarize_diagnostics(history):
     pyplot.savefig(filename + '_plot.png')
     pyplot.close()
 
-# run the test harness for evaluating a model
-def run_test_harness():
+# train model
+def train():
     # Create a callback that saves the model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(
                                                 #filepath="checkpoints/saved_model_{epoch:02d}.pb",
@@ -193,5 +182,5 @@ def run_test_harness():
     # learning curves
     summarize_diagnostics(history)
 
-# entry point, run the test harness
-run_test_harness()
+# entry point, train model
+train()
