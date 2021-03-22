@@ -113,7 +113,7 @@ def train():
 
     # This callback will stop the training when there is no improvement in
     # the validation loss for 10 consecutive epochs.
-    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=50, verbose=True, mode='auto')
+    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=True, mode='auto')
 
 
     # load dataset
@@ -126,7 +126,7 @@ def train():
     
     history = model.fit(trainX, trainY, epochs=1000, batch_size=128, 
                         validation_data=(testX, testY), verbose=1,
-                        callbacks=[cp_callback, tensorboard_callback])
+                        callbacks=[cp_callback, tensorboard_callback, early_stopping_callback])
 
 
 

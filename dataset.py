@@ -5,7 +5,7 @@
 
 
 import re
-import cv2
+
 import numpy as np
 import os
 from sklearn.utils import shuffle
@@ -90,8 +90,6 @@ def load_training_data(labelsfile, imagedir, image_size, classes):
                 continue
 
             try:
-                #image = cv2.imread(imagedir + "/" + path, cv2.COLOR_BGR2RGB)
-                #image = cv2.imread(imagedir + "/" + path)
                 image = load_img(imagedir + "/" + path)
                 #img.show()
                 #sys.exit(0)
