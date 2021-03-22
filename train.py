@@ -107,7 +107,7 @@ def define_model():
     model.add(Flatten())
     model.add(Dense(1024, activation='relu' ))
     model.add(BatchNormalization())
-    model.add(Dropout(0.8))
+    #model.add(Dropout(0.8))
     model.add(Dense(9, activation='softmax'))
     # compile model
     #opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-4)
@@ -137,8 +137,8 @@ def summarize_diagnostics(history):
 def train():
     # Create a callback that saves the model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(
-                                                #filepath="checkpoints/saved_model_{epoch:02d}.pb",
-                                                filepath="checkpoints/saved_model_v1.pb",
+                                                filepath="checkpoints/saved_model_{epoch:03d}.pb",
+                                                #filepath="checkpoints/saved_model_v1.pb",
                                                 save_weights_only=False,
                                                 verbose=0, save_freq='epoch',
                                                 monitor='val_accuracy',
