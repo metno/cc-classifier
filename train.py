@@ -23,32 +23,6 @@ from keras.preprocessing import image
 import matplotlib.pyplot as plt
 import numpy as np
 
-def load_image(img_path, show=False):
-
-    img = image.load_img(img_path, target_size=(128, 128))
-    img_tensor = image.img_to_array(img)   # (height, width, channels)
-    img_tensor = np.expand_dims(img_tensor, axis=0)         # (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
-    img_tensor /= 255.0                                      # imshow expects values in the range [0, 1]
-    
-    show = False
-    if show:
-        plt.imshow(img_tensor[0])                           
-        plt.axis('off')
-        plt.show()
-
-    return img_tensor
-
-
-class predict_callback(keras.callbacks.Callback):
-    def on_train_begin(self, logs={}):
-        pass
-
-    def on_epoch_end(self, batch, logs={}):
-        new_image = load_image('/lustre/storeB/project/metproduction/products/webcams/2021/03/09/81/81_20210309T1200Z.jpg')
-        pred = self.model.predict(new_image)
-        cc_cnn = np.argmax(pred[0]) # Array of probabilities
-        print("PRED: %d" % cc_cnn)
-
 
 # load train and test dataset
 def load_dataset():
@@ -61,17 +35,6 @@ def load_dataset():
     trainY = to_categorical(trainY, 9, dtype='float32')
     testY = to_categorical(testY, 9, dtype='float32')
     return trainX, trainY, testX, testY
-
-# scale pixels
-def prep_pixels(train, test):
-    # convert from integers to floats
-    train_norm = train.astype('float32')
-    test_norm = test.astype('float32')
-    # normalize to range 0-1
-    train_norm = train_norm / 255.0
-    test_norm = test_norm / 255.0
-    # return normalized images
-    return train_norm, test_norm
 
 # Define cnn model
 def define_model():
