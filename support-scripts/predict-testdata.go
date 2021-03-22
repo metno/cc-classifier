@@ -102,7 +102,7 @@ func worker(id int, jobs <-chan labelPath, modelfile string, results chan<- labe
 		count++
 		///fmt.Println("worker", id, "started  job", j, "Path:", j.Path)
 		//os.Setenv("CUDA_VISIBLE_DEVICES", "")
-		outStr, errStr, err := execCommand(os.Getenv("PROJECT_HOME")+"/predict.py",
+		outStr, errStr, err := execCommand(os.Getenv("PROJECT_HOME_CNN")+"/predict.py",
 			//"--modeldir", modelfile,
 			"--filename", j.Path)
 
@@ -117,7 +117,7 @@ func worker(id int, jobs <-chan labelPath, modelfile string, results chan<- labe
 }
 
 func main() {
-	if os.Getenv("PROJECT_HOME") == "" {
+	if os.Getenv("PROJECT_HOME_CNN") == "" {
 		log.Println("Error: environment variable PROJECT_HOME not set. Exiting")
 	}
 
