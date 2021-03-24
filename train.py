@@ -30,7 +30,7 @@ def load_dataset():
     # load dataset
     trainX, trainY, testX, testY = dataset.read_train_sets2("/home/espenm/data/v52/alldata.txt",
                                                                 "/home/espenm/data/v52/training_data", 
-                                                                128, classes, validation_size=0.30)
+                                                                128, classes, validation_size=0.25)
     # one hot encode target values
     trainY = to_categorical(trainY, 9, dtype='float32')
     testY = to_categorical(testY, 9, dtype='float32')
@@ -44,6 +44,8 @@ def define_model():
     model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
+    # This time it seems "Drop out" actually is the chance of 
+    # "dropping out", and not the odds of "staying". Keras vs Tensorflow
     model.add(Dropout(0.6))
     
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
@@ -66,11 +68,18 @@ def define_model():
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
     model.add(Dropout(0.8))
+
+    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Dropout(0.8))
     
     model.add(Flatten())
     model.add(Dense(1024, activation='relu' ))
     model.add(BatchNormalization())
-    #model.add(Dropout(0.8))
+    model.add(Dropout(0.1))
     model.add(Dense(9, activation='softmax'))
     # compile model
     #opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-4)
@@ -98,7 +107,7 @@ def summarize_diagnostics(history):
 
 # train model
 def train():
-    # Create a callback that saves the model's weights
+    # Create a callback that saves the model + model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(
                                                 filepath="checkpoints/saved_model_{epoch:03d}.pb",
                                                 #filepath="checkpoints/saved_model_v1.pb",
@@ -113,13 +122,12 @@ def train():
 
     # This callback will stop the training when there is no improvement in
     # the validation loss for 10 consecutive epochs.
-    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=True, mode='auto')
+    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=50, verbose=True, mode='auto')
 
 
     # load dataset
     trainX, trainY, testX, testY = load_dataset()
-    # prepare pixel data
-    #trainX, testX = prep_pixels(trainX, testX)
+    
     # define model
     model = define_model()
     # fit model
@@ -146,4 +154,5 @@ def train():
     summarize_diagnostics(history)
 
 # entry point, train model
-train()
+if __name__ == "__main__":
+    train()
