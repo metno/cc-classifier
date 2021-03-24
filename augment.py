@@ -80,7 +80,7 @@ def augment_data2(dataset, dataset_labels):
         aug_factors[ccval] = math.ceil((float(label_counts[8])/float(num_augs_enabled)) / float(label_counts[ccval]))
     print(aug_factors)
 
-    maximg = {0: 8000, 1: 8000, 2: 8000, 3: 8000, 4: 8000, 5: 8000, 6: 8000, 7: 8000, 8: 8000}
+    maximg = {0: 11000, 1: 11000, 2: 11000, 3: 11000, 4: 11000, 5: 11000, 6: 11000, 7: 11000, 8: 11000}
 
     for num in range (0, dataset.shape[0]):
         if num % 1000 == 0:
