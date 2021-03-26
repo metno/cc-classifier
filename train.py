@@ -79,7 +79,7 @@ def define_model():
     model.add(Flatten())
     model.add(Dense(1024, activation='relu' ))
     model.add(BatchNormalization())
-    model.add(Dropout(0.1))
+    model.add(Dropout(0.5))
     model.add(Dense(9, activation='softmax'))
     # compile model
     #opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-4)
