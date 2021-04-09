@@ -15,6 +15,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Do cloud coverage preditcion on image')
 parser.add_argument('--filename', type=str, help='Input image to do prediction on')
+parser.add_argument('--modelpath', type=str, help='Input image to do prediction on')
 args = parser.parse_args()
 
 def load_image(img_path, show=False):
@@ -41,7 +42,7 @@ if __name__ == '__main__':
     
 
     # load model
-    model = load_model('checkpoints/saved_model_v1.pb')
+    model = load_model(args.modelpath)
     
     # image path
     #img_path = '/lustre/storeB/project/metproduction/products/webcams/2021/03/09/81/81_20210309T1200Z.jpg'

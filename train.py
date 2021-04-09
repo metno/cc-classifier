@@ -1,5 +1,5 @@
 ''''exec python3 -u -- "$0" ${1+"$@"} # '''
-# Using this ^ to prevent buffering running with nohup
+# Using this ^ to prevent stdout buffering running with nohup
 
 import sys
 from matplotlib import pyplot
@@ -77,13 +77,13 @@ def define_model():
     model.add(Dropout(0.8))
     
     model.add(Flatten())
-    model.add(Dense(1024, activation='relu' ))
+    model.add(Dense(512, activation='relu' ))
     model.add(BatchNormalization())
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.6))
     model.add(Dense(9, activation='softmax'))
     # compile model
     #opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-4)
-    opt = tf.keras.optimizers.Adam(learning_rate=1e-5)
+    opt = tf.keras.optimizers.Adam(learning_rate=1e-4)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model
@@ -122,7 +122,7 @@ def train():
 
     # This callback will stop the training when there is no improvement in
     # the validation loss for 10 consecutive epochs.
-    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=50, verbose=True, mode='auto')
+    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1000000, verbose=True, mode='auto')
 
 
     # load dataset
@@ -132,10 +132,9 @@ def train():
     model = define_model()
     # fit model
     
-    history = model.fit(trainX, trainY, epochs=1000, batch_size=128, 
+    history = model.fit(trainX, trainY, epochs=1000, batch_size=128,
                         validation_data=(testX, testY), verbose=1,
                         callbacks=[cp_callback, tensorboard_callback, early_stopping_callback])
-
 
 
     """
@@ -148,8 +147,9 @@ def train():
             epochs=1000, callbacks=[cp_callback, tensorboard_callback], verbose=1)
     """
     # evaluate model
-    _, acc = model.evaluate(testX, testY, verbose=1)
-    print('> %.3f' % (acc * 100.0))
+    scores = model.evaluate(testX, testY, verbose=1)
+    print(model.metrics_names)
+    print(scores)
     # learning curves
     summarize_diagnostics(history)
 

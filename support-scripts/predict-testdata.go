@@ -95,7 +95,7 @@ func readLabels(path string) ([]labelPath, error) {
 // concurrent instances. These workers will receive
 // work on the `jobs` channel and send the corresponding
 // results on `results`.
-func worker(id int, jobs <-chan labelPath, modelfile string, results chan<- labelPath) {
+func worker(id int, jobs <-chan labelPath, modelpath string, results chan<- labelPath) {
 	count := 0
 	for j := range jobs {
 
@@ -103,7 +103,7 @@ func worker(id int, jobs <-chan labelPath, modelfile string, results chan<- labe
 		///fmt.Println("worker", id, "started  job", j, "Path:", j.Path)
 		//os.Setenv("CUDA_VISIBLE_DEVICES", "")
 		outStr, errStr, err := execCommand(os.Getenv("PROJECT_HOME_CNN")+"/predict.py",
-			//"--modeldir", modelfile,
+			"--modelpath", modelpath,
 			"--filename", j.Path)
 
 		if err != nil {
@@ -122,10 +122,10 @@ func main() {
 	}
 
 	labelFile := flag.String("labelfile", "", "Path to the labelsfile")
-	modelFile := flag.String("modelfile", "", "Path to the modelfile")
+	modelPath := flag.String("modelpath", "", "Path to the model")
 	//epoch := flag.String("epoch", "", "Model snapshot")
 	flag.Parse()
-	if *labelFile == "" || *modelFile == "" {
+	if *labelFile == "" || *modelPath == "" {
 		flag.Usage()
 		return
 	}
@@ -148,7 +148,7 @@ func main() {
 	// This starts up cpus workers, initially blocked
 	// because there are no jobs yet.
 	for w := 0; w < cpus; w++ {
-		go worker(w, jobs, *modelFile, results)
+		go worker(w, jobs, *modelPath, results)
 	}
 
 	// Here we send `len(labelPaths)` jobs and then `close` that
