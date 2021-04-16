@@ -38,6 +38,8 @@ def load_dataset():
 
 # Define cnn model
 def define_model():
+
+    # intput 128    
     model = Sequential()
     model.add(Conv2D(128, (3, 3), activation='relu', padding='same', input_shape=(128, 128, 3)))
     model.add(BatchNormalization())
@@ -46,44 +48,56 @@ def define_model():
     model.add(MaxPooling2D((2, 2)))
     # This time it seems "Drop out" actually is the chance of 
     # "dropping out", and not the odds of "staying". Keras vs Tensorflow
-    model.add(Dropout(0.6))
+    model.add(Dropout(0.2))
     
+    # 256 
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.7))
+    model.add(Dropout(0.3))
     
+    # 512
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.8))
+    model.add(Dropout(0.4))
     
+    # 1024
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
-    model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.8))
+    model.add(MaxPooling2D((2, 2)))    
+    model.add(Dropout(0.5))
 
-    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.8))
+    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.6))
+
+    # 2048
+    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.8))
     
+    # Output
     model.add(Flatten())
-    model.add(Dense(512, activation='relu' ))
+    model.add(Dense(1024, activation='relu' ))
     model.add(BatchNormalization())
-    model.add(Dropout(0.6))
+    model.add(Dropout(0.5))
     model.add(Dense(9, activation='softmax'))
     # compile model
     #opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-4)
-    opt = tf.keras.optimizers.Adam(learning_rate=1e-4)
+    opt = tf.keras.optimizers.Adam(learning_rate=1e-5)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model
