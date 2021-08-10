@@ -28,8 +28,8 @@ import numpy as np
 def load_dataset():
     classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     # load dataset
-    trainX, trainY, testX, testY = dataset.read_train_sets2("/home/espenm/data/v52/alldata.txt",
-                                                                "/home/espenm/data/v52/training_data", 
+    trainX, trainY, testX, testY = dataset.read_train_sets2("/home/espenm/data/v53/alldata.txt",
+                                                                "/home/espenm/data/v53/training_data", 
                                                                 128, classes, validation_size=0.25)
     # one hot encode target values
     trainY = to_categorical(trainY, 9, dtype='float32')
@@ -48,7 +48,7 @@ def define_model():
     model.add(MaxPooling2D((2, 2)))
     # This time it seems "Drop out" actually is the chance of 
     # "dropping out", and not the odds of "staying". Keras vs Tensorflow
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.3))
     
     # 256 
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
@@ -56,7 +56,7 @@ def define_model():
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.4))
     
     # 512
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
@@ -64,7 +64,7 @@ def define_model():
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.4))
+    model.add(Dropout(0.5))
     
     # 1024
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
@@ -72,26 +72,19 @@ def define_model():
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))    
-    model.add(Dropout(0.5))
-
-    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(MaxPooling2D((2, 2)))
-    #model.add(Dropout(0.6))
+    model.add(Dropout(0.6))
 
     # 2048
-    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(MaxPooling2D((2, 2)))
-    #model.add(Dropout(0.8))
+    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Dropout(0.7))
     
     # Output
     model.add(Flatten())
-    model.add(Dense(1024, activation='relu' ))
+    model.add(Dense(512, activation='relu' ))
     model.add(BatchNormalization())
     model.add(Dropout(0.5))
     model.add(Dense(9, activation='softmax'))

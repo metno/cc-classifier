@@ -2,3 +2,4 @@ nohup.out
 env.sh
 checkpoints/*
 __pycache__
+exp*
