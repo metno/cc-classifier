@@ -48,7 +48,7 @@ def define_model():
     model.add(MaxPooling2D((2, 2)))
     # This time it seems "Drop out" actually is the chance of 
     # "dropping out", and not the odds of "staying". Keras vs Tensorflow
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.5))
     
     # 256 
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
@@ -56,7 +56,7 @@ def define_model():
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.4))
+    model.add(Dropout(0.6))
     
     # 512
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
@@ -64,7 +64,7 @@ def define_model():
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.7))
     
     # 1024
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
@@ -72,15 +72,15 @@ def define_model():
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))    
-    model.add(Dropout(0.6))
+    model.add(Dropout(0.8))
 
     # 2048
-    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.7))
+    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.7))
     
     # Output
     model.add(Flatten())
@@ -128,8 +128,8 @@ def train():
 
 
     # This callback will stop the training when there is no improvement in
-    # the validation loss for 10 consecutive epochs.
-    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=1000000, verbose=True, mode='auto')
+    # the validation loss for 100 consecutive epochs.
+    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=100, verbose=True, mode='auto')
 
 
     # load dataset
