@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"runtime"
 	"strconv"
 	"strings"
 )
@@ -38,11 +37,12 @@ func parseInt(value string) int {
 // /home/espenm/space/projects/cc-classifier/predict.py --modeldir /home/espenm/space/projects/models/v24_9999 --epoch 831 --filename /lustre/storeB/project/metproduction/products/webcams/2018/06/14/13/13_20180614T2200Z.jpg  2>/dev/null
 func execCommand(command string, arg ...string) (string, string, error) {
 	cmd := exec.Command(command, arg...)
-	var stdout, stderr bytes.Buffer
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
-	outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+	outStr, errStr := stdout.String(), stderr.String()
 	return outStr, errStr, err
 
 }
@@ -65,7 +65,7 @@ func readLabels(path string) ([]labelPath, error) {
 		matches := r.FindStringSubmatch(line)
 		if len(matches) != 8 {
 			fmt.Printf("Could not parse input %s\n", line)
-			return nil, fmt.Errorf("Could not parse input %s", line)
+			return nil, fmt.Errorf("could not parse input %s", line)
 		}
 
 		camid := parseInt(matches[1])
@@ -130,8 +130,8 @@ func main() {
 		return
 	}
 
-	cpus := runtime.NumCPU()
-	cpus = 12
+	//cpus := runtime.NumCPU()
+	cpus := 12
 	//runtime.GOMAXPROCS(cpus)
 
 	labelPaths, err := readLabels(*labelFile)
