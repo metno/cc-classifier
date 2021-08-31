@@ -48,7 +48,7 @@ def define_model():
     model.add(MaxPooling2D((2, 2)))
     # This time it seems "Drop out" actually is the chance of 
     # "dropping out", and not the odds of "staying". Keras vs Tensorflow
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.6))
     
     # 256 
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
@@ -56,7 +56,7 @@ def define_model():
     model.add(Conv2D(256, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.7))
     
     # 512
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
@@ -64,7 +64,7 @@ def define_model():
     model.add(Conv2D(512, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.8))
     
     # 1024
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
@@ -72,24 +72,24 @@ def define_model():
     model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D((2, 2)))    
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.7))
 
     # 2048
-    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D((2, 2)))
-    model.add(Dropout(0.5))
+    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(MaxPooling2D((2, 2)))
+    #model.add(Dropout(0.8))
     
     # Output
     model.add(Flatten())
-    model.add(Dense(128, activation='relu' ))
+    model.add(Dense(1024, activation='relu' ))
     model.add(BatchNormalization())
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.8))
     model.add(Dense(9, activation='softmax'))
     # compile model
-    opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-4)
+    opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-5)
     #opt = tf.keras.optimizers.Adam(learning_rate=1e-4)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
@@ -129,7 +129,7 @@ def train():
 
     # This callback will stop the training when there is no improvement in
     # the validation loss for 100 consecutive epochs.
-    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=114, verbose=True, mode='auto')
+    early_stopping_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=125, verbose=True, mode='auto')
 
 
     # load dataset

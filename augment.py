@@ -43,9 +43,9 @@ def augment_data2(dataset, dataset_labels):
     augmented_image_labels = []
 
     use_flip_axis             = True
-    use_random_rotation       = True
+    use_random_rotation       = False
     use_random_shift          = False
-    use_random_shear          = True
+    use_random_shear          = False
     use_copy                  = False
     use_salt_and_pepper_noise = False
 
