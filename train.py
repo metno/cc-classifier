@@ -67,12 +67,12 @@ def define_model():
     model.add(Dropout(0.8))
     
     # 1024
-    model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D((2, 2)))    
-    model.add(Dropout(0.7))
+    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
+    #model.add(BatchNormalization())
+    #model.add(MaxPooling2D((2, 2)))    
+    #model.add(Dropout(0.7))
 
     # 2048
     #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
@@ -80,7 +80,7 @@ def define_model():
     #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
     #model.add(BatchNormalization())
     #model.add(MaxPooling2D((2, 2)))
-    #model.add(Dropout(0.8))
+    #model.add(Dropout(0.5))
     
     # Output
     model.add(Flatten())
