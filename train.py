@@ -28,8 +28,8 @@ validation_split = 0.25
 def load_dataset():
     classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     # load dataset
-    trainX, trainY, testX, testY = dataset.read_train_sets2("/home/espenm/data/v53/alldata.txt",
-                                                                "/home/espenm/data/v53/training_data", 
+    trainX, trainY, testX, testY = dataset.read_train_sets2("/home/espenm/data/v54_half/alldata.txt",
+                                                                "/home/espenm/data/v54_half/training_data", 
                                                                 128, classes, validation_size=validation_split)
     # one hot encode target values
     trainY = to_categorical(trainY, 9, dtype='float32')
@@ -67,12 +67,12 @@ def define_model():
     model.add(Dropout(0.8))
     
     # 1024
-    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
-    #model.add(BatchNormalization())
-    #model.add(MaxPooling2D((2, 2)))    
-    #model.add(Dropout(0.7))
+    model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(1024, (3, 3), activation='relu', padding='same'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D((2, 2)))    
+    model.add(Dropout(0.7))
 
     # 2048
     #model.add(Conv2D(2048, (3, 3), activation='relu', padding='same'))
@@ -86,11 +86,11 @@ def define_model():
     model.add(Flatten())
     model.add(Dense(1024, activation='relu' ))
     model.add(BatchNormalization())
-    model.add(Dropout(0.8))
+    model.add(Dropout(0.7))
     model.add(Dense(9, activation='softmax'))
     # compile model
     opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-3)
-    #opt = tf.keras.optimizers.Adam(learning_rate=1e-4)
+    #opt = tf.keras.optimizers.Adam(learning_rate=1e-3)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
     return model

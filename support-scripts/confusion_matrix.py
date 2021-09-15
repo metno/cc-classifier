@@ -80,7 +80,7 @@ with open(args.predictions, "r") as ins:
 df_cm = DataFrame(confusion_matrix)
 print(df_cm)
 plt.figure(figsize = (10,7))
-title = 'Confusion matrix Num samples in each class: %d' % min(cccnt)
+title = 'Confusion matrix'
 
 print(title)
 fig, ax = plt.subplots()
