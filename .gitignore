@@ -1,5 +1,5 @@
 nohup.out
-env.sh
+#env.sh
 checkpoints/*
 __pycache__
 exp*
