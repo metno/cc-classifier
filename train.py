@@ -92,6 +92,8 @@ def define_model():
     opt = SGD(lr=0.001, momentum=0.9, learning_rate=1e-3)
     #opt = tf.keras.optimizers.Adam(learning_rate=1e-3)
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
+    [print(n.name) for n in tf.compat.v1.get_default_graph().as_graph_def().node]
+
     model.summary()
     return model
 
