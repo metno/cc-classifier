@@ -28,8 +28,8 @@ validation_split = 0.25
 def load_dataset():
     classes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     # load dataset
-    trainX, trainY, testX, testY = dataset.read_train_sets2("/home/espenm/data/v54_half/alldata.txt",
-                                                                "/home/espenm/data/v54_half/training_data", 
+    trainX, trainY, testX, testY = dataset.read_train_sets2("/home/espenm/data/v53/alldata.txt",
+                                                                "/home/espenm/data/v53/training_data", 
                                                                 128, classes, validation_size=validation_split)
     # one hot encode target values
     trainY = to_categorical(trainY, 9, dtype='float32')
