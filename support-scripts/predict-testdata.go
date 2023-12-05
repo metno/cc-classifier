@@ -3,141 +3,124 @@ package main
 // Run predictions concurrently.
 
 import (
-	"bufio"
-	"bytes"
 	"flag"
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
-	"regexp"
+	"runtime"
 	"strconv"
-	"strings"
+
+	"github.com/metno/go-tf-cnn-predict/predict"
 )
 
-var imagedir = "/lustre/storeB/project/metproduction/products/webcams"
+/*
+Use a datadir organized like this
+├── test
+│   ├── 0
+│   ├── 1
+│   ├── 2
+│   ├── 3
+│   ├── 4
+│   ├── 5
+│   ├── 6
+│   ├── 7
+│   └── 8
+
+*/
 
 type labelPath struct {
 	Path       string
 	Label      int
 	Prediction int
+	Stddev     float32
 }
 
-func parseInt(value string) int {
-	if len(value) == 0 {
-		return 0
-	}
-	i, err := strconv.Atoi(value)
-	if err != nil {
-		return -2
-	}
-	return i
-}
-
-// /home/espenm/space/projects/cc-classifier/predict.py --modeldir /home/espenm/space/projects/models/v24_9999 --epoch 831 --filename /lustre/storeB/project/metproduction/products/webcams/2018/06/14/13/13_20180614T2200Z.jpg  2>/dev/null
-func execCommand(command string, arg ...string) (string, string, error) {
-	cmd := exec.Command(command, arg...)
-	var stdout bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	outStr, errStr := stdout.String(), stderr.String()
-	return outStr, errStr, err
-
-}
-
-func readLabels(path string) ([]labelPath, error) {
+func readLabelsAndPaths(testdir string) ([]labelPath, error) {
 	items := []labelPath{}
 
-	//CAMID_YYYYMMDDThhmmZ.jpg
-	r := regexp.MustCompile(`(\d+)_(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})Z\.jpg (\d)`)
-
-	file, err := os.Open(path)
+	entries, err := os.ReadDir(testdir)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		matches := r.FindStringSubmatch(line)
-		if len(matches) != 8 {
-			fmt.Printf("Could not parse input %s\n", line)
-			return nil, fmt.Errorf("could not parse input %s", line)
+	for _, e := range entries {
+		files, err := os.ReadDir(testdir + "/" + e.Name())
+		if err != nil {
+			log.Fatal(err)
 		}
+		label, err := strconv.Atoi(e.Name())
+		if err != nil {
+			log.Printf("%v", err)
+			continue
+		}
+		for _, f := range files {
+			path := fmt.Sprintf("%s/%d/%s", testdir, label, f.Name())
 
-		camid := parseInt(matches[1])
-		year := parseInt(matches[2])
-		month := parseInt(matches[3])
-		day := parseInt(matches[4])
-		hour := parseInt(matches[5])
-		minute := parseInt(matches[6])
-		cclabel := parseInt(matches[7])
-
-		path := fmt.Sprintf("%s/%0.4d/%0.2d/%0.2d/%d/%d_%0.4d%0.2d%0.2dT%0.2d%0.2dZ.jpg", imagedir, year, month, day,
-			camid, camid, year, month, day,
-			hour, minute)
-
-		item1 := labelPath{Path: path, Label: cclabel}
-		items = append(items, item1)
-
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
+			item1 := labelPath{Path: path, Label: label, Prediction: -1}
+			items = append(items, item1)
+		}
 	}
 	return items, nil
+}
+
+func predictImage(imagepath string, modeldir string, predictor predict.Predictor) (int, float32, error) {
+
+	pred, dev, err := predictor.PredictWithDeviation(imagepath, predictor.Model)
+	if err != nil {
+		return -1, -1, err
+	}
+	return pred, dev, err
 }
 
 // Here's the worker, of which we'll run several
 // concurrent instances. These workers will receive
 // work on the `jobs` channel and send the corresponding
 // results on `results`.
-func worker(id int, jobs <-chan labelPath, modelpath string, results chan<- labelPath) {
-	count := 0
+func worker(id int, jobs <-chan labelPath, modelPath string, results chan<- labelPath, predictor predict.Predictor) {
+
 	for j := range jobs {
 
-		count++
-		///fmt.Println("worker", id, "started  job", j, "Path:", j.Path)
-		//os.Setenv("CUDA_VISIBLE_DEVICES", "")
-		outStr, errStr, err := execCommand(os.Getenv("PROJECT_HOME_CNN")+"/predict.py",
-			"--modelpath", modelpath,
-			"--filename", j.Path)
-
+		pred, dev, err := predictImage(j.Path, modelPath, predictor)
 		if err != nil {
-			fmt.Printf("predict-testdata: Failed: %v\n", err)
-			fmt.Printf("predict-testdata: Failed: %s\n", errStr)
+			log.Printf("error: %v", err)
+			continue
 		}
 
-		j.Prediction = parseInt(strings.TrimRight(outStr, "\n"))
+		j.Prediction = pred
+		j.Stddev = dev
 		results <- j
 	}
 }
 
 func main() {
-	if os.Getenv("PROJECT_HOME_CNN") == "" {
-		log.Println("Error: environment variable PROJECT_HOME not set. Exiting")
-	}
 
-	labelFile := flag.String("labelfile", "", "Path to the labelsfile")
-	modelPath := flag.String("modelpath", "", "Path to the model")
+	testDatadir := flag.String("testdatadir", "/lustre/storeB/users/espenm/data/v2.0.3/test", "Path to the test data directory")
+	modelPath := flag.String("modelpath", "/lustre/storeB/project/metproduction/static_data/camsatrec/models/v2.0.3-tensorflow2.x+keras/saved_model_057.pb", "Path to the model")
 	//epoch := flag.String("epoch", "", "Model snapshot")
 	flag.Parse()
-	if *labelFile == "" || *modelPath == "" {
+	if *testDatadir == "" || *modelPath == "" {
 		flag.Usage()
 		return
 	}
 
-	//cpus := runtime.NumCPU()
-	cpus := 12
-	//runtime.GOMAXPROCS(cpus)
-
-	labelPaths, err := readLabels(*labelFile)
+	labelPaths, err := readLabelsAndPaths(*testDatadir)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//cpus := runtime.NumCPU()
+	cpus := 8
+	runtime.GOMAXPROCS(cpus)
+
+	predictor, err := predict.NewPredictor(*modelPath)
+	if err != nil {
+		log.Printf("NewPredictor: %v", err)
+		os.Exit(68)
+
+	}
+
+	model := predictor.Model
+	defer model.Session.Close()
 
 	// In order to use our pool of workers we need to send
 	// them work and collect their results. We make 2
@@ -148,13 +131,12 @@ func main() {
 	// This starts up cpus workers, initially blocked
 	// because there are no jobs yet.
 	for w := 0; w < cpus; w++ {
-		go worker(w, jobs, *modelPath, results)
+		go worker(w, jobs, *modelPath, results, predictor)
 	}
 
 	// Here we send `len(labelPaths)` jobs and then `close` that
 	// channel to indicate that's all the work we have.
 	for j := 0; j < len(labelPaths); j++ {
-
 		jobs <- labelPaths[j]
 	}
 	close(jobs)
@@ -162,7 +144,6 @@ func main() {
 	// Finally we collect all the results of the work.
 	for a := 0; a < len(labelPaths); a++ {
 		res := <-results
-		fmt.Printf("%s %d %d\n", res.Path, res.Label, res.Prediction)
+		fmt.Printf("%s %d %d %0.3f\n", res.Path, res.Label, res.Prediction, res.Stddev)
 	}
-
 }
